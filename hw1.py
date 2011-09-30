@@ -10,7 +10,8 @@ class bpcoll:
 			try:
 				vals = self.bps[j]
 				vals.sort()
-				printList.append(vals)
+				for i in vals:
+					printList.append(i)
 			except KeyError:
 				pass
 		for i in range(len(printList)):
@@ -21,16 +22,20 @@ class bpcoll:
 		for i in range(self.n):
 			bitSum += bp[i]
 		if bitSum in self.bps:
+			print "bp: " + str(bp)
  			self.bps[bitSum].append(bp[:])
+			print self.bps[bitSum]
 		else:
-			self.bps[bitSum] = bp[:]
+			self.bps[bitSum] = []
+			self.bps[bitSum].append(bp[:])
 
 	def bpdel(self, bp):
 		bitSum = 0
 		for i in range(self.n):
 			bitSum += bp[i]
 		self.bps[bitSum].remove(bp)
-				
+		
+#Works!		
 def evaluateAssignment(assignment):
 	print "Assignment: " + str(assignment)
 	orVal = False
@@ -42,6 +47,7 @@ def evaluateAssignment(assignment):
 		orVal = orVal or andVal
 	return orVal
 
+#Works!
 def createAssignments(expression, n):
 	out = []
 	for i in itertools.product((0, 1), repeat = n):
@@ -59,6 +65,8 @@ def mapBits(mapping, truePatterns):
 			bitList[j][mapping[i]] = truePatterns[j][i]	 	
 	return bitList
 
+
+#Works! maybe....
 def createMapping(expression, n):
 	mapping = []
 	for j in range(len(expression)):
@@ -82,10 +90,10 @@ def getpatts(expression, n):
 	for i in expression:
 		totalLen += len(i)
 		expLens.append(len(i))
+	print "expLens: " + str(expLens)
 
 	# Check for valid assignments
-# This part is fucked up....
-############################################3
+
 	for assignment in possibles:
 		listyList = []
 		place = 0
@@ -94,9 +102,9 @@ def getpatts(expression, n):
 				listyList.append(assignment[:expLens[i]])
 				place = expLens[i]
 			else:
-				listyList.append(assignment[place:expLens[i]])
+				listyList.append(assignment[place:place + expLens[i]])
 				place += expLens[i]
-###################################################
+
 
 		boolVal = evaluateAssignment(listyList)
 		print boolVal
@@ -114,6 +122,6 @@ def getpatts(expression, n):
 	return bitCollection
 			
 
-b = getpatts([[0, 1], [2, 3]], 4)
+b = getpatts([[0, 1], [2]], 4)
 print str(b.bps)
 b.bpsprint()
