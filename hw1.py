@@ -11,7 +11,10 @@ class bpcoll:
 				vals = self.bps[j]
 				vals.sort()
 				for i in vals:
-					printList.append(i)
+					printBits = ""
+					for j in i:
+						printBits += str(j)
+					printList.append(printBits)
 			except KeyError:
 				pass
 		for i in range(len(printList)):
