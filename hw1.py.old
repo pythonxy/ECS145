@@ -1,3 +1,4 @@
+import itertools
 
 class bpcoll:
 	def __init__(self, lenPatterns):
@@ -9,15 +10,15 @@ class bpcoll:
 			try:
 				vals = self.bps[j]
 				vals.sort()
-				for patternList in vals:
+				for i in vals:
 					printBits = ""
-					for bitPattern in patternList:
-						printBits += str(bitPattern)
+					for j in i:
+						printBits += str(j)
 					printList.append(printBits)
 			except KeyError:
 				pass
-		for elt in printList:
-			print elt
+		for i in range(len(printList)):
+			print printList[i]
 
 	def bpadd(self, bp):
 		bitSum = 0
@@ -35,18 +36,17 @@ class bpcoll:
 			bitSum += bp[i]
 		self.bps[bitSum].remove(bp)
 		
-#Checks whether a given assignment satisfies the given expression		
+#Works!		
 def evaluateAssignment(assignment):
 	orVal = False
-	for andTerm in assignment[0]:
+	for andTerm in assignment:
 		andVal = True
 		for b in andTerm:
-			andVal = b and andVal
+			if b == 0:
+				andVal = False
 		orVal = orVal or andVal
 	return orVal
 
-
-#Returns the binary equivalent of the given number as a list
 def getBinary(num, n):
 	output = []
 	for i in range(n):
@@ -58,15 +58,13 @@ def getBinary(num, n):
 	output.reverse()
 	return output
 
-
-#Creates all possible bit-assignments for an n-bit expression
+#Works!
 def createAssignments(expression, n):
 	out = []
 	for i in range(2**(n)):
 		out.append(getBinary(i, n))
 	return out
 
-#Maps bits to correct positions (as given in the expression) 
 def mapBits(mapping, truePatterns):
 	bitList = truePatterns[:]
 	for j in range(len(truePatterns)):	
@@ -75,7 +73,7 @@ def mapBits(mapping, truePatterns):
 	return bitList
 
 
-#Determines the bit-mapping (based on indices given in the expression)
+#Works! maybe....
 def createMapping(expression, n):
 	mapping = []
 	for j in range(len(expression)):
@@ -85,22 +83,6 @@ def createMapping(expression, n):
 			mapping.append(i)
 	return mapping
 
-
-#Collects and-terms of an expression
-def collectExpressions(possible, expLens):
-	listyList = []
-	place = 0
-	for i in range(len(expLens)):
-		if i == 0:
-			listyList.append(possible[:expLens[i]])
-			place = expLens[i]
-		else:
-			listyList.append(possible[place:place + expLens[i]])
-			place += expLens[i]
-	return listyList
-
-
-#Returns a bpcoll object containing all satrisfying bit patterns for a given expression
 def getpatts(expression, n):
 
 	# create all possible bit assignments
@@ -110,15 +92,29 @@ def getpatts(expression, n):
 	mapping = createMapping(expression, n)	
 	truePatterns = []	
 
-	expLens = map(len, expression)
-	totalLen = reduce(lambda x, y: x+y, expLens)
+	totalLen = 0
+	expLens = []
+	for i in expression:
+		totalLen += len(i)
+		expLens.append(len(i))
 
-	# Collect assignment into and-terms 
-	assignment = map(collectExpressions, possibles, [expLens]*len(possibles))
-	
-	# Filter for valid assignments, return corresponding bit patterns
-	tempPatterns = filter(evaluateAssignment, zip(assignment, possibles))
-	truePatterns = [b for (a, b) in tempPatterns]
+	# Check for valid assignments
+
+	for assignment in possibles:
+		listyList = []
+		place = 0
+		for i in range(len(expLens)):
+			if i == 0:
+				listyList.append(assignment[:expLens[i]])
+				place = expLens[i]
+			else:
+				listyList.append(assignment[place:place + expLens[i]])
+				place += expLens[i]
+
+
+		boolVal = evaluateAssignment(listyList)
+		if boolVal:			
+			truePatterns.append(assignment[:])
 
 	# map bits to correct positions
 	mappedPatterns = mapBits(mapping, truePatterns)	
@@ -129,10 +125,7 @@ def getpatts(expression, n):
 		bitCollection.bpadd(mappedPatterns[i])
 
 	return bitCollection
-		
-def main():
-	b = getpatts([[0, 1], [2]], 4)
-	b.bpsprint()
+			
 
-if __name__ == "__main__":
-	main()
+b = getpatts([[0, 1], [2]], 4)
+b.bpsprint()
