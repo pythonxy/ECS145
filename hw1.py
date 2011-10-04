@@ -66,13 +66,14 @@ def createAssignments(expression, n):
 		out.append(getBinary(i, n))
 	return out
 
+
 #Maps bits to correct positions (as given in the expression) 
 def mapBits(mapping, truePatterns):
-	bitList = truePatterns[:]
-	for j in range(len(truePatterns)):	
+	bitList = zip(truePatterns, truePatterns)
+	for bitRow, trueRow in bitList:	
 		for i in range(len(mapping)):
-			bitList[j][mapping[i]] = truePatterns[j][i]	 	
-	return bitList
+			bitRow[mapping[i]] = trueRow[i]
+	return [a for (a, b) in bitList]
 
 
 #Determines the bit-mapping (based on indices given in the expression)
@@ -90,13 +91,13 @@ def createMapping(expression, n):
 def collectExpressions(possible, expLens):
 	listyList = []
 	place = 0
-	for i in range(len(expLens)):
-		if i == 0:
-			listyList.append(possible[:expLens[i]])
-			place = expLens[i]
+	for i in expLens:
+		if place == 0:
+			listyList.append(possible[:i])
+			place = i
 		else:
-			listyList.append(possible[place:place + expLens[i]])
-			place += expLens[i]
+			listyList.append(possible[place:place + i])
+			place += i
 	return listyList
 
 
