@@ -6,6 +6,7 @@ import subprocess
 #pdfname = sys.argv[1]
 #indexfilename = sys.argv[2]
 #wordfilename = ""
+
 if len(sys.argv) > 2:
 	wordfilename = sys.argv[3]
 
