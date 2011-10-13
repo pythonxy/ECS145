@@ -55,8 +55,11 @@ class Pad:
 
 		self.cursor = Cursor(0, 0, (self.boxLocY, self.boxLocX))
 
+
 	def setText(self, text):
 		self.pad.clear()
+
+		self.text = text
 
 		lines = text.split('\n')
 		self.maxY = len(lines) + self.boxLocY
@@ -132,9 +135,9 @@ class Window:
 		curses.cbreak()
 		self.window.keypad(1)
 		
-		(maxY, maxX) = self.window.getmaxyx()
-		self.width = maxX - 1
-		self.center = int((maxY - 1)/ 2)
+		(self.maxY, self.maxX) = self.window.getmaxyx()
+		self.width = self.maxX - 1
+		self.center = int((self.maxY - 1)/ 2)
 		self.window.hline(self.center, 0, curses.ACS_HLINE, self.width)
 		
 		log.write("width, center: %d, %d" % (self.width, self.center))
@@ -143,6 +146,7 @@ class Window:
 		self.bottomPad = Pad((self.center + 1, 0), (0, 0), (self.center - 1, self.width))
 		self.topPadActive = True
 		self.refresh();
+
 
 	def handleKey(self, key):
 		if key == ord('o'):
@@ -153,9 +157,31 @@ class Window:
 		else: 
 			self.bottomPad.handleKey(key)
 			
+	
+	def resize(self):
+		log.write("Resizing pads")
+
+		(self.maxY, self.maxX) = self.window.getmaxyx()
+		self.width = self.maxX - 1
+		self.center = int((self.maxY - 1)/ 2)
+		self.window.hline(self.center, 0, curses.ACS_HLINE, self.width)
 		
+		log.write("width, center: %d, %d" % (self.width, self.center))
+
+		topText = self.topPad.text
+		self.topPad = Pad((0, 0), (0, 0), (self.center - 1, self.width))
+		self.topPad.setText(topText)
+
+		bottomText = self.bottomPad.text
+		self.bottomPad = Pad((self.center + 1, 0), (0, 0), (self.center - 1, self.width))
+		self.bottomPad.setText(bottomText)
+
+		#self.topPadActive = True
 
 	def refresh(self):
+		if (self.maxY, self.maxX) != self.window.getmaxyx():
+			self.resize()
+
 		self.window.refresh()
 
 		if self.topPadActive == True:
