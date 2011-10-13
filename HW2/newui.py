@@ -134,8 +134,11 @@ class Window:
 		
 		(maxY, maxX) = self.window.getmaxyx()
 		self.width = maxX - 1
-		self.center = int(maxY / 2)
+		self.center = int((maxY - 1)/ 2)
 		self.window.hline(self.center, 0, curses.ACS_HLINE, self.width)
+		
+		log.write("width, center: %d, %d" % (self.width, self.center))
+
 		self.topPad = Pad((0, 0), (0, 0), (self.center - 1, self.width))
 		self.bottomPad = Pad((self.center + 1, 0), (0, 0), (self.center - 1, self.width))
 		self.topPadActive = True
@@ -153,6 +156,8 @@ class Window:
 		
 
 	def refresh(self):
+		self.window.refresh()
+
 		if self.topPadActive == True:
 			self.window.move(self.topPad.cursor.absy, self.topPad.cursor.absx)
 			log.write("Setting window cursor: %d, %d" % (self.topPad.cursor.absy, self.topPad.cursor.absx))
@@ -172,15 +177,18 @@ class Window:
 
 window = Window()		
 try:
-	window.topPad.setText("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\nBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\nc" + str(window.center * 2) + "\nj\nk\nl\m")
+	window.topPad.setText("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\nA\nA\nA\nA\n\nA\nA\nA\nA\n\nA\nA\nA\nA\n\nA\nA\nA\nA\nA\nA\nA\nA\nA\nA\nA\nA\nAAAAAA\nBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\nc" + str(window.center * 2) + "\nj\nk\nl\m")
 	window.bottomPad.setText("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\nBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\nc\nm")
+	window.refresh()
 
+	key = ord('x')
 	while True:
-		key = window.window.getch()
 		if key == ord('q'):
 			break
 		window.handleKey(key)
 		window.refresh()
+		key = window.window.getch()
+
 		
 finally:
 	window.stop()
