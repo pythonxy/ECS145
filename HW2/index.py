@@ -4,8 +4,6 @@ import subprocess
 import Exc
 from logger import *
 
-log = Logger("indexlog.txt")
-
 #pdfname = sys.argv[1]
 #indexfilename = sys.argv[2]
 #wordfilename = ""
@@ -96,18 +94,14 @@ class Index:
 	def findWord(self, document, pageNum = 0):
 		if pageNum == 0:
 			pageNum = range(1, Page.num + 1)
-		print pageNum
 		for wordtuple in self.words:
 			pagedict = {}
 			for num in pageNum:
-				print num
 				page = document.pages[num]
 				wordLocs = []
 				for word in wordtuple:
 					temp = page.findWord(word)
 					wordLocs = wordLocs + temp
-				if wordLocs != []:
-					print wordLocs
 				pagedict[page.pagenum] = wordLocs
 			self.location[wordtuple] = pagedict
 

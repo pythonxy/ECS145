@@ -3,10 +3,6 @@ from logger import *
 import Exc
 from index import *
 
-log = Logger("uilog.txt")
-
-document = Document("./Syllabus.pdf")
-index = Index(document, "wordfile.txt")
 
 class Cursor:
 	
@@ -138,8 +134,6 @@ class Pad:
 
 
 
-
-
 class Window:
 	def __init__(self):
 		self.window = curses.initscr()
@@ -147,10 +141,7 @@ class Window:
 		curses.cbreak()
 		self.window.keypad(1)
 		
-		(self.maxY, self.maxX) = self.window.getmaxyx()
-		self.width = self.maxX - 1
-		self.center = int((self.maxY - 1)/ 2)
-		self.window.hline(self.center, 0, curses.ACS_HLINE, self.width)
+		self.setDimensions()		
 		
 		log.write("width, center: %d, %d" % (self.width, self.center))
 
@@ -185,10 +176,7 @@ class Window:
 	def resize(self):
 		log.write("Resizing pads")
 
-		(self.maxY, self.maxX) = self.window.getmaxyx()
-		self.width = self.maxX - 1
-		self.center = int((self.maxY - 1)/ 2)
-		self.window.hline(self.center, 0, curses.ACS_HLINE, self.width)
+		self.setDimensions()		
 		
 		log.write("width, center: %d, %d" % (self.width, self.center))
 
@@ -199,8 +187,14 @@ class Window:
 		bottomText = self.bottomPad.text
 		self.bottomPad = Pad((self.center + 1, 0), (0, 0), (self.center - 1, self.width))
 		self.bottomPad.setText(bottomText)
+		
 
-		#self.topPadActive = True
+	def setDimensions(self):
+		(self.maxY, self.maxX) = self.window.getmaxyx()
+		self.width = self.maxX - 1
+		self.center = int((self.maxY - 1)/ 2)
+		self.window.hline(self.center, 0, curses.ACS_HLINE, self.width)
+
 
 	def refresh(self):
 		if (self.maxY, self.maxX) != self.window.getmaxyx():
@@ -225,21 +219,50 @@ class Window:
 		self.window.keypad(0)
 		curses.endwin()
 
-window = Window()		
-try:
-	window.topPad.setText(document.nextPage().text)
-	window.bottomPad.setText(index.writeOut())
-	window.refresh()
 
-	key = ord('x')
-	while True:
-		if key == ord('q'):
-			break
-		window.handleKey(key)
+def YXtoByte(y, x, text):
+	lines = text.split('\n')
+	curByte = 0
+	i = 0
+	while i < y:
+		curByte += len(lines[i]) + 1
+		i += 1
+	curByte += x
+	return curByte
+
+def BytetoYX(theByte, text):
+	lines = text.split('\n')
+	curByte = theByte
+	i = -1
+	while curByte > 0:
+		i+=1
+		curByte -= len(lines[i]) + 1
+	curByte += len(lines[i]) + 1
+	return (i, curByte)
+
+def main():
+
+	window = Window()		
+	try:
+		window.topPad.setText(document.nextPage().text)
+		window.bottomPad.setText(index.writeOut())
 		window.refresh()
-		key = window.window.getch()
+
+		key = ord('x')
+		while True:
+			if key == ord('q'):
+				break
+			window.handleKey(key)
+			window.refresh()
+			key = window.window.getch()
 
 		
-finally:
-	window.stop()
-	log.close()
+	finally:
+		window.stop()
+		log.close()
+
+document = Document("./Syllabus.pdf")
+index = Index(document, "wordfile.txt")
+log = Logger("log.txt")
+if __name__ == "__main__":
+	main()
