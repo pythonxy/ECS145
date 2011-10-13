@@ -1,7 +1,10 @@
 import os
 import sys
 import subprocess
+import Exc
+from logger import *
 
+log = Logger()
 
 #pdfname = sys.argv[1]
 #indexfilename = sys.argv[2]
@@ -31,7 +34,7 @@ class Page:
 
 
 class Document:
-	
+	curPage = 0
 	def __init__(self, pdfname):
 		subprocess.call("pdftotext %s temp.txt -layout" % (pdfname), shell=True)
 		text = open("temp.txt", 'r')		
@@ -46,6 +49,21 @@ class Document:
 			newPg = Page(text)
 			self.pages[newPg.pagenum] = newPg
 
+	def nextPage(self):
+		if self.curPage <= len(self.pages):
+			self.curPage += 1
+			page = self.pages[self.curPage]
+			log.write("PageText: %s" % (page.text))
+			return page
+		else:
+			raise Exc.EOF()
+	def previousPage(self):
+		if self.curPage > 1:
+			self.curPage -= 1
+			page = self.pages[self.curPage]
+			return page
+		else:
+			raise Exc.BOF()
 
 class Index:
 	def __init__(self, document, filename):
@@ -106,10 +124,8 @@ class Index:
 				if len(val) != 0:
 					entry += str(num) + ","
 			output.append(entry[:-1]) 
-		print output
+		return reduce(lambda x, y: x + y, output)
 #		indexFile = open(indexfilename, 'w')
 #		indexFile.writelines(output)
 
-doc = Document("./Syllabus.pdf")
-print "created temp.txt"
-index = Index(doc, "wordfile.txt")
+

@@ -1,7 +1,12 @@
 import curses
 from logger import *
+import Exc
+from index import *
 
 log = Logger()
+
+document = Document("./Syllabus.pdf")
+index = Index(document, "wordfile.txt")
 
 class Cursor:
 	
@@ -43,7 +48,6 @@ class Cursor:
 
 
 class Pad:
-	i = 2;
 	def __init__(self, boxLocation, scrollLocation, boxSize):
 		(self.boxLocY, self.boxLocX) = boxLocation
 		(self.scrollY, self.scrollX) = scrollLocation
@@ -79,46 +83,54 @@ class Pad:
 
 		
 	def checkCursor(self, y, x):
-#Out of bounds
+		if self.checkBounds(y, x):
+			return
+		else:
+			self.checkScroll(y, x)
+		
+
+	def checkBounds(self, y, x):
 		if y + self.scrollY > self.maxY:
-			self.cursor.setX(0)
 			self.cursor.setY(0)
-			raise Exception #next page!
+			raise Exc.PageDown() #next page!
 
-		if y < self.minY:
+		if y < self.minY and self.scrollY == 0:
 			self.cursor.setY(0)
-			return
+			raise Exc.PageUp()
 
-		if x < 0:
+		if x < 0 and self.scrollX == 0:
 			self.cursor.setX(0)
-			return
+			return True
 
 		if x + self.scrollX > self.maxX:
 			self.cursor.setX(0)
 			self.cursor.moveY(1)
 			self.scrollX = 0
 			self.checkCursor(self.cursor.absy, self.cursor.absx)
-			return
+			return True
+		return False
 
-#Needs scrolling
-		if y > self.boxLocY + self.boxY:
+	def checkScroll(self, y, x):
+		log.write("Checking scrolling")
+		log.write("boxLocY, boxY: %d, %d" % (self.boxLocY, self.boxY))
+		if y > self.boxY:
 			log.write("Caught scroll down event")
 			self.scrollY += 1
 			self.cursor.moveY(-1)
-		if x > self.boxLocX + self.boxX:
+		elif y < self.boxLocY and self.scrollY > 0:
+			log.write("Caught scroll up event")
+			log.write("MaxY, MaxX: %d, %d" % (self.maxY, self.maxX))
+			self.scrollY -= 1
+			self.cursor.moveY(1)
+		elif x > self.boxLocX + self.boxX:
 			log.write("Caught scroll right event")
 			self.scrollX += 1
 			self.cursor.moveX(-1)
-		if y < self.boxLocY + self.scrollY:
-			log.write("Caught scroll up event")
-			self.scrollY -= 1
-			self.cursor.moveY(1)
-		if x < self.boxLocX + self.scrollX:
+		elif x < self.boxLocX and self.scrollX > 0:
 			log.write("Caught scroll left event")
 			self.scrollX -= 1
 			self.cursor.moveX(1)
 
-		return
 
 	def refresh(self):
 		log.write("Calling pad refresh with scroll = (%d, %d), origin = (%d, %d), size = (%d, %d)" % (self.scrollY, self.scrollX, self.boxLocY, self.boxLocX, self.boxY, self.boxX))
@@ -153,7 +165,19 @@ class Window:
 			self.topPadActive = ~self.topPadActive
 			log.write("Top pad active? " + str(self.topPadActive))
 		elif self.topPadActive == True:
-			self.topPad.handleKey(key)
+			try:
+				self.topPad.handleKey(key)
+			except Exception as e:
+				if type(e) is Exc.PageDown:
+					try:
+						self.topPad.setText(document.nextPage().text)
+					except Exception:
+						pass
+				elif type(e) is Exc.PageUp:
+					try:
+						self.topPad.setText(document.previousPage().text)
+					except Exception:
+						pass
 		else: 
 			self.bottomPad.handleKey(key)
 			
@@ -203,8 +227,8 @@ class Window:
 
 window = Window()		
 try:
-	window.topPad.setText("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\nA\nA\nA\nA\n\nA\nA\nA\nA\n\nA\nA\nA\nA\n\nA\nA\nA\nA\nA\nA\nA\nA\nA\nA\nA\nA\nAAAAAA\nBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\nc" + str(window.center * 2) + "\nj\nk\nl\m")
-	window.bottomPad.setText("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\nBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\nc\nm")
+	window.topPad.setText(document.nextPage().text)
+	window.bottomPad.setText(index.writeOut())
 	window.refresh()
 
 	key = ord('x')
