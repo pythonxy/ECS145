@@ -1,6 +1,5 @@
 import curses
 
-
 class Cursor:
 	
 	def __init__(self, init_y, init_x, offset):
@@ -35,19 +34,19 @@ class Cursor:
 			self.moveX(-1)
 		elif key == ord('v'):
 			self.moveX(1)
-		return (y, x)
+		return (self.y, self.x)
 
 
 class Pad:
-	
+	i = 2;
 	def __init__(self, boxLocation, scrollLocation, boxSize):
 		(self.boxLocY, self.boxLocX) = boxLocation
 		(self.scrollY, self.scrollX) = scrollLocation
-		(self.boxY, self.boxX) = boxSize
+		(self.boxY, self.boxX) = (sum(pair) for pair in zip(boxSize, boxLocation))
 
 		self.pad = curses.newpad(1000, 10000)
 
-		self.cursor = Cursor(self.boxLocY, self.boxLocX)
+		self.cursor = Cursor(0, 0, (self.boxLocY, self.boxLocX))
 
 	def setText(self, text):
 		self.pad.clear()
@@ -56,11 +55,11 @@ class Pad:
 		self.maxY = len(lines)
 		self.maxX = max(map(len, lines))
 
-		self.topPad.addstr(text)
+		self.pad.addstr(text)
 
 		self.scrollY, self.scrollX = 0, 0
 
-		self.cursor = Cursor(self.boxLocY, self.boxLocX)
+		self.cursor = Cursor(1, 1, (self.boxLocY, self.boxLocX))
 
 		self.refresh()
 
@@ -114,51 +113,50 @@ class Window:
 		self.window.keypad(1)
 		
 		(maxY, maxX) = self.window.getmaxyx()
-		self.width = maxX
+		self.width = maxX - 1
 		self.center = int(maxY / 2)
-		self.topPad = Pad((0, 0), (self.center -1, self.width))
-		self.bottomPad = Pad((self.center + 1, 0), (maxY, self.width))
+		self.window.hline(self.center, 0, curses.ACS_HLINE, self.width)
+		self.topPad = Pad((0, 0), (self.center - 1, self.width), (self.center - 1, self.width))
+		self.bottomPad = Pad((self.center + 1, 0), (maxY, self.width), (self.center - 1, self.width))
 		self.topPadActive = True
+		self.refresh();
+
+	def handleKey(self, key):
+		if key == ord('o'):
+			self.topPadActive = ~self.topPadActive
+		elif self.topPadActive:
+			self.topPad.handleKey(key)
+		else: 
+			self.bottomPad.handleKey(key)
+			
+		
 
 	def refresh(self):
 		if self.topPadActive:
 			self.window.move(self.topPad.cursor.absy, self.topPad.cursor.absx)
-		else:
+		else: 
 			self.window.move(self.bottomPad.cursor.absy, self.bottomPad.cursor.absx)			
 
 		self.topPad.refresh()
 		self.bottomPad.refresh()
 
-	def stop():
+	def stop(self):
 		curses.echo()
 		curses.nocbreak()
 		self.window.keypad(0)
-		self.window.endwin()
+		curses.endwin()
 
+window = Window()		
+try:
+	window.topPad.setText("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\nBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\nc" + str(window.center * 2) + "\nj\nk\nl\m")
+	window.bottomPad.setText("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\nBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\nc\nm")
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	while True:
+		key = window.window.getch()
+		if key == ord('q'):
+			break
+		window.handleKey(key)
+		window.refresh()
+		
+finally:
+	window.stop()

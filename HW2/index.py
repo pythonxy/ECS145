@@ -10,8 +10,6 @@ import subprocess
 if len(sys.argv) > 2:
 	wordfilename = sys.argv[3]
 
-
-
 class Page:
 	num = 0
 	def __init__(self, text):
