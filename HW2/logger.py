@@ -3,10 +3,12 @@
 
 class Logger:
 	def __init__(self):
-		self.logfile = open("log.txt", "a")
+		pass
 
 	def write(self, stmnt):
+		self.logfile = open("log.txt", "a")
 		self.logfile.write(stmnt + "\n")
-
-	def close(self):
 		self.logfile.close()
+	
+	def close(self):
+		pass

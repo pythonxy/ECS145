@@ -7,23 +7,20 @@ class Cursor:
 	
 	def __init__(self, init_y, init_x, offset):
 		self.offset = offset[:]
-		log.write("Offset: %d, %d" % (self.offset[0], self.offset[1]))
 		self.x = init_x
 		self.y = init_y
 		self.absx = init_x + self.offset[1]
 		self.absy = init_y + self.offset[0]
 
-		log.write("Cursor location: %d, %d" % (self.absy, self.absx))
-
 	def moveX(self, val):
 		self.x += val
 		self.absx += val
-		log.write("Cursor moved to: %d, %d" % (self.y, self.x))
+		log.write("Cursor moved to: %d, %d" % (self.absy, self.absx))
 
 	def moveY(self, val):
 		self.y += val
 		self.absy += val
-		log.write("Cursor moved to: %d, %d" % (self.y, self.x))
+		log.write("Cursor moved to: %d, %d" % (self.absy, self.absx))
 
 	def setX(self, val):
 		self.x = val
@@ -42,18 +39,19 @@ class Cursor:
 			self.moveY(-1)
 		elif key == ord('d'):
 			self.moveY(1)
-		return (self.y, self.x)
+		return (self.absy, self.absx)
 
 
 class Pad:
 	i = 2;
 	def __init__(self, boxLocation, scrollLocation, boxSize):
 		(self.boxLocY, self.boxLocX) = boxLocation
-		log.write("boxLocation: %d, %d" % (self.boxLocY, self.boxLocX))
 		(self.scrollY, self.scrollX) = scrollLocation
 		(self.boxY, self.boxX) = (sum(pair) for pair in zip(boxSize, boxLocation))
 
 		self.pad = curses.newpad(1000, 10000)
+
+		self.minY = self.boxLocY
 
 		self.cursor = Cursor(0, 0, (self.boxLocY, self.boxLocX))
 
@@ -61,7 +59,7 @@ class Pad:
 		self.pad.clear()
 
 		lines = text.split('\n')
-		self.maxY = len(lines)
+		self.maxY = len(lines) + self.boxLocY
 		self.maxX = max(map(len, lines))
 
 		self.pad.addstr(text)
@@ -84,17 +82,20 @@ class Pad:
 			self.cursor.setY(0)
 			raise Exception #next page!
 
-		if y < 0:
+		if y < self.minY:
 			self.cursor.setY(0)
+			return
 
 		if x < 0:
 			self.cursor.setX(0)
+			return
 
 		if x + self.scrollX > self.maxX:
 			self.cursor.setX(0)
 			self.cursor.moveY(1)
 			self.scrollX = 0
-			self.checkCursor(self.cursor.y, self.cursor.x)
+			self.checkCursor(self.cursor.absy, self.cursor.absx)
+			return
 
 #Needs scrolling
 		if y > self.boxLocY + self.boxY:
@@ -105,11 +106,11 @@ class Pad:
 			log.write("Caught scroll right event")
 			self.scrollX += 1
 			self.cursor.moveX(-1)
-		if y <= self.boxLocY + self.scrollY:
+		if y < self.boxLocY + self.scrollY:
 			log.write("Caught scroll up event")
 			self.scrollY -= 1
 			self.cursor.moveY(1)
-		if x <= self.boxLocX + self.scrollX:
+		if x < self.boxLocX + self.scrollX:
 			log.write("Caught scroll left event")
 			self.scrollX -= 1
 			self.cursor.moveX(1)
