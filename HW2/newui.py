@@ -3,7 +3,7 @@ from logger import *
 import Exc
 from index import *
 
-log = Logger()
+log = Logger("uilog.txt")
 
 document = Document("./Syllabus.pdf")
 index = Index(document, "wordfile.txt")

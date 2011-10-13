@@ -1,1 +1,1 @@
-discussion/Discussion/discuss 3,5,6,7
+discussion/Discussion/discuss

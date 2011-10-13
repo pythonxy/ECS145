@@ -4,7 +4,7 @@ import subprocess
 import Exc
 from logger import *
 
-log = Logger()
+log = Logger("indexlog.txt")
 
 #pdfname = sys.argv[1]
 #indexfilename = sys.argv[2]
@@ -22,7 +22,7 @@ class Page:
 
 	def findWord(self, word):
 		location = []
-		index = self.text[:].find(word)
+		index = self.text[:].lower().find(word)
 		location.append((index, index + len(word)))
 	
 		while index != -1:
@@ -53,7 +53,6 @@ class Document:
 		if self.curPage <= len(self.pages):
 			self.curPage += 1
 			page = self.pages[self.curPage]
-			log.write("PageText: %s" % (page.text))
 			return page
 		else:
 			raise Exc.EOF()
@@ -72,6 +71,7 @@ class Index:
 		self.file = open(filename, 'r')
 		temp = self.file.readlines()
 		temp = map(lambda x: x.rstrip('\n'), temp)
+		temp = map(lambda x: x.lower(), temp)
 		
 		try:
 			pgnums = range(len(temp))
@@ -92,10 +92,6 @@ class Index:
 		self.findWord(document, pgnumList)
 		self.writeOut()
 	
-	def parseWordFile(self, wordfilename):
-		self.wordfile = open(wordfilename, 'r')
-		self.wordtext = self.wordfile.readlines()
-		self.wordtext = map(lambda x: x.rstrip('\n'), self.wordtext)
 
 	def findWord(self, document, pageNum = 0):
 		if pageNum == 0:
