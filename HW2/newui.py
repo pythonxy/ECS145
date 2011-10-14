@@ -62,9 +62,11 @@ class Pad:
 	
 	def chgat(self, y, x, n, attr=curses.A_STANDOUT):
 		for i in range(n):
-			char = self.lines[y][x+i]
-			self.pad.addch(y,x+i,char,attr)
-		self.pad.touchline(y, 1, 1)
+			if y < len(self.lines) and x+i < len(self.lines[y]):
+				char = self.lines[y][x+i]
+				log.write("Changing char: %d, %d" % (y, x))
+				self.pad.addch(y,x+i,char,attr)
+				self.pad.touchline(y, 1, 1)
 		self.refresh()
 
 
@@ -148,6 +150,7 @@ class Pad:
 
 class Window:
 	def __init__(self):
+		self.moved = True
 		self.window = curses.initscr()
 		curses.noecho()
 		curses.cbreak()
@@ -155,6 +158,9 @@ class Window:
 		
 		self.setDimensions()		
 		self.curWord = None
+		self.displayPage = 1
+		self.indexPage = -1 
+
 
 		log.write("width, center: %d, %d" % (self.width, self.center))
 
@@ -166,16 +172,16 @@ class Window:
 	def highlightWord(self):
 		if self.curWord != None:
 			
-			# highlight all instances of the words on the curPage
-			for loc in set(index.location[self.curWord][self.curPage]):
-				(beginY, beginX) = BytetoYX(loc[0],document.getPage(self.curPage).text)
-				(endY, endX) = BytetoYX(loc[1],document.getPage(self.curPage).text)
+			# highlight all instances of the words on the indexPage
+			for loc in index.location[self.curWord][int(self.indexPage)]:
+				(beginY, beginX) = BytetoYX(loc[0],document.getPage(self.indexPage).text)
+				(endY, endX) = BytetoYX(loc[1],document.getPage(self.indexPage).text)
 				
 				#if self.sequenceInTopBounds(beginY, beginX, endY, endX):
 				self.topPad.chgat(beginY, beginX, endX - beginX, curses.A_REVERSE)
 
 				log.write("high pos: %d, %d" % (beginY, beginX))
-				log.write("locs: %d, %d %d" % (loc[0],loc[1], len(set(index.location[self.curWord][self.curPage]))) )
+
 	
 	def sequenceInTopBounds(self, beginY, beginX, endY, endX):
 		return  beginY - self.topPad.scrollY >= 0 \
@@ -187,57 +193,80 @@ class Window:
 	def handleKey(self, key):
 		if key == ord('o'):
 			self.topPadActive = not self.topPadActive
+			self.moved = False
 			log.write("Top pad active? " + str(self.topPadActive))
+
 		elif key == ord('v') and (not self.topPadActive or self.curWord != None):
 			(y, x) = self.bottomPad.cursor.getRelPosition()
 			log.write("y, x: %d, %d" % (y, x))
+			if y >= len(index.words):
+				return
 			log.write("curWord, index word: %s, %s" % (str(self.curWord), index.words[y]))
-
+			log.write("Pressed v!")
 			# New word selected
 			if self.curWord != index.words[y] and self.topPadActive == False:
 			 	self.curWord = index.words[y]
 			 	log.write(str(self.curWord))
-			 	self.curPage = min(map(int, index.iwIndex[self.curWord].values())) # First page for current word				 
+			 	self.indexPage = min(map(int, index.iwIndex[self.curWord].values())) # First page for current word				 
+				self.displayPage = self.indexPage
 				try:
 
-					self.curPage = index.iwIndex[self.curWord][x]
-					self.topPad.setText(document.getPage(self.curPage).text)
+					self.indexPage = index.iwIndex[self.curWord][x]
+					self.displayPage = self.indexPage
+					self.topPad.setText(document.getPage(self.indexPage).text)
 				except KeyError:
-					self.topPad.setText(document.getPage(self.curPage).text)
+					self.topPad.setText(document.getPage(self.indexPage).text)
 			#Same word as before
 			else:
 				try:
-					self.curPage = index.iwIndex[self.curWord][x]
-					self.topPad.setText(document.getPage(self.curPage).text)
+					tempPage = index.iwIndex[self.curWord][x]
+					log.write("display, index before move check: %d %d" % (int(self.displayPage), int(self.indexPage)))
+					log.write(str(self.moved))
+					if int(self.displayPage) == int(tempPage) or self.moved == False:
+						raise KeyError
+					self.indexPage = tempPage
+					self.displayPage = self.indexPage
+					self.topPad.setText(document.getPage(self.indexPage).text)
 				except KeyError:
 					nums = index.iwIndex[self.curWord].values()
 					log.write(str(nums))
 					nums = map(lambda x: int(x), nums)
-					nums.sort()
 					nums = list(set(nums))
+					nums.sort()
 					log.write(str(nums))
-					i = nums.index(self.curPage) + 1
+					i = nums.index(int(self.indexPage)) + 1
 					if i < len(nums):
-						self.curPage = nums[i] 
+						log.write("i: %d" % (i))
+						self.indexPage = nums[i]
+						self.displayPage = self.indexPage 
 					else:
-						self.curPage = nums[0]
-					self.topPad.setText(document.getPage(self.curPage).text)
+						log.write("Wrapping with i: %d" % (i))
+						self.indexPage = nums[0]
+						self.displayPage = self.indexPage
+					self.topPad.setText(document.getPage(self.indexPage).text)
+			self.moved = False
+
 		elif self.topPadActive == True:
 			try:
+				self.moved = True
 				self.topPad.handleKey(key)
 			except Exception as e:
 				if type(e) is Exc.PageDown:
 					try:
 						self.topPad.setText(document.nextPage().text)
+						self.displayPage += 1
 					except Exception:
 						pass
 				elif type(e) is Exc.PageUp:
 					try:
 						self.topPad.setText(document.previousPage().text)
+						self.displayPage -= 1
 					except Exception:
 						pass
+
 		else: 
 			try:
+				self.moved = True
 				self.bottomPad.handleKey(key)
 			except (Exc.PageUp, Exc.PageDown):
 				pass	
@@ -264,7 +293,6 @@ class Window:
 		self.center = int((self.maxY - 1)/ 2)
 		self.window.hline(self.center, 0, curses.ACS_HLINE, self.width)
 
-	high = False
 	def refresh(self):
 		if (self.maxY, self.maxX) != self.window.getmaxyx():
 			self.resize()
@@ -276,7 +304,10 @@ class Window:
 			self.window.move(self.bottomPad.cursor.absy, self.bottomPad.cursor.absx)			
 			log.write("Setting window cursor: %d, %d" % (self.bottomPad.cursor.absy, self.bottomPad.cursor.absx))
 		
-		self.highlightWord()
+		log.write("display, index: %d %d" % (int(self.displayPage), int(self.indexPage)))
+		if int(self.displayPage) == int(self.indexPage):
+			log.write("Called highlight on page " + str(self.displayPage))
+			self.highlightWord()
 		self.bottomPad.refresh()
 		self.topPad.refresh()
 		self.window.refresh()
@@ -302,7 +333,7 @@ def BytetoYX(theByte, text):
 	lines = text.split('\n')
 	curByte = theByte
 	i = -1
-	while curByte > 0:
+	while curByte >= 0:
 		i+=1
 		curByte -= len(lines[i]) + 1
 	curByte += len(lines[i]) + 1
@@ -329,7 +360,7 @@ def main():
 		window.stop()
 		log.close()
 
-document = Document("./Syllabus.pdf")
+document = Document("./FastLanePython.pdf")
 index = Index(document, "wordfile.txt")
 index.indexIW()
 log = Logger("log.txt")
