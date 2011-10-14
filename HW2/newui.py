@@ -171,8 +171,8 @@ class Window:
 				(beginY, beginX) = BytetoYX(loc[0],document.getPage(self.curPage).text)
 				(endY, endX) = BytetoYX(loc[1],document.getPage(self.curPage).text)
 				
-				if self.sequenceInTopBounds(beginY, beginX, endY, endX):
-					self.topPad.chgat(beginY - self.topPad.scrollY, beginX - self.topPad.scrollX, endX - beginX, curses.A_REVERSE)
+				#if self.sequenceInTopBounds(beginY, beginX, endY, endX):
+				self.topPad.chgat(beginY, beginX, endX - beginX, curses.A_REVERSE)
 
 				log.write("high pos: %d, %d" % (beginY, beginX))
 				log.write("locs: %d, %d %d" % (loc[0],loc[1], len(set(index.location[self.curWord][self.curPage]))) )
