@@ -59,6 +59,11 @@ class Pad:
 		self.minY = self.boxLocY
 
 		self.cursor = Cursor(0, 0, (self.boxLocY, self.boxLocX))
+	
+	def chgat(self, y, x, n, attr=curses.A_STANDOUT):
+		for i in range(n):
+			self.pad.delch(y,x+i)
+		self.refresh()
 
 
 	def setText(self, text):
@@ -158,15 +163,25 @@ class Window:
 
 	def highlightWord(self):
 		if self.curWord != None:
+			
 			# highlight all instances of the words on the curPage
-			for loc in index.location[self.curWord][self.curPage]:
+			for loc in set(index.location[self.curWord][self.curPage]):
 				(beginY, beginX) = BytetoYX(loc[0],document.getPage(self.curPage).text)
 				(endY, endX) = BytetoYX(loc[1],document.getPage(self.curPage).text)
-				if beginY - self.topPad.scrollY >= 0 and  beginX - self.topPad.scrollX >= 0:
-					self.window.chgat(beginY - self.topPad.scrollY, beginX - self.topPad.scrollX, endX - beginX, curses.A_REVERSE)
-					log.write("highlighting")
+				
+				if self.sequenceInTopBounds(beginY, beginX, endY, endX):
+					# self.window.chgat(beginY - self.topPad.scrollY, beginX - self.topPad.scrollX, endX - beginX, curses.A_STANDOUT)
+					self.topPad.chgat(0, 0, 3, curses.A_STANDOUT)
+					log.write("called")
+
 				log.write("high pos: %d, %d" % (beginY, beginX))
-				log.write("locs: %d, %d %d" % (loc[1],loc[0], len(index.location[self.curWord][self.curPage])) )
+				log.write("locs: %d, %d %d" % (loc[0],loc[1], len(set(index.location[self.curWord][self.curPage]))) )
+	
+	def sequenceInTopBounds(self, beginY, beginX, endY, endX):
+		return  beginY - self.topPad.scrollY >= 0 \
+				and  beginX - self.topPad.scrollX >= 0 \
+				and endY - self.topPad.scrollY < self.topPad.boxY \
+				and endX - self.topPad.scrollX < self.topPad.boxX
 
 
 	def handleKey(self, key):
@@ -249,12 +264,11 @@ class Window:
 		self.center = int((self.maxY - 1)/ 2)
 		self.window.hline(self.center, 0, curses.ACS_HLINE, self.width)
 
-
+	high = False
 	def refresh(self):
 		if (self.maxY, self.maxX) != self.window.getmaxyx():
 			self.resize()
-		self.window.refresh()
-		self.highlightWord()
+
 		if self.topPadActive == True:
 			self.window.move(self.topPad.cursor.absy, self.topPad.cursor.absx)
 			log.write("Setting window cursor: %d, %d" % (self.topPad.cursor.absy, self.topPad.cursor.absx))
@@ -262,8 +276,10 @@ class Window:
 			self.window.move(self.bottomPad.cursor.absy, self.bottomPad.cursor.absx)			
 			log.write("Setting window cursor: %d, %d" % (self.bottomPad.cursor.absy, self.bottomPad.cursor.absx))
 		
-		self.topPad.refresh()
 		self.bottomPad.refresh()
+		self.topPad.refresh()
+		self.highlightWord()
+		self.window.refresh()
 
 	def stop(self):
 		curses.echo()
