@@ -62,7 +62,9 @@ class Pad:
 	
 	def chgat(self, y, x, n, attr=curses.A_STANDOUT):
 		for i in range(n):
-			self.pad.delch(y,x+i)
+			char = self.lines[y][x+i]
+			self.pad.addch(y,x+i,char,attr)
+		self.pad.touchline(y, 1, 1)
 		self.refresh()
 
 
@@ -71,9 +73,9 @@ class Pad:
 
 		self.text = text
 
-		lines = text.split('\n')
-		self.maxY = len(lines) + self.boxLocY
-		self.maxX = max(map(len, lines))
+		self.lines = text.split('\n')
+		self.maxY = len(self.lines) + self.boxLocY
+		self.maxX = max(map(len, self.lines))
 
 		self.pad.addstr(text)
 
@@ -170,9 +172,7 @@ class Window:
 				(endY, endX) = BytetoYX(loc[1],document.getPage(self.curPage).text)
 				
 				if self.sequenceInTopBounds(beginY, beginX, endY, endX):
-					# self.window.chgat(beginY - self.topPad.scrollY, beginX - self.topPad.scrollX, endX - beginX, curses.A_STANDOUT)
-					self.topPad.chgat(0, 0, 3, curses.A_STANDOUT)
-					log.write("called")
+					self.topPad.chgat(beginY - self.topPad.scrollY, beginX - self.topPad.scrollX, endX - beginX, curses.A_REVERSE)
 
 				log.write("high pos: %d, %d" % (beginY, beginX))
 				log.write("locs: %d, %d %d" % (loc[0],loc[1], len(set(index.location[self.curWord][self.curPage]))) )
@@ -276,9 +276,9 @@ class Window:
 			self.window.move(self.bottomPad.cursor.absy, self.bottomPad.cursor.absx)			
 			log.write("Setting window cursor: %d, %d" % (self.bottomPad.cursor.absy, self.bottomPad.cursor.absx))
 		
+		self.highlightWord()
 		self.bottomPad.refresh()
 		self.topPad.refresh()
-		self.highlightWord()
 		self.window.refresh()
 
 	def stop(self):
