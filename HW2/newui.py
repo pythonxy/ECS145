@@ -42,6 +42,11 @@ class Cursor:
 			self.moveY(1)
 		return (self.absy, self.absx)
 
+	def getAbsPosition(self):
+		return (self.absy, self.absx)
+
+	def getRelPosition(self):
+		return (self.y, self.x)
 
 class Pad:
 	def __init__(self, boxLocation, scrollLocation, boxSize):
@@ -142,7 +147,8 @@ class Window:
 		self.window.keypad(1)
 		
 		self.setDimensions()		
-		
+		self.curWord = None
+
 		log.write("width, center: %d, %d" % (self.width, self.center))
 
 		self.topPad = Pad((0, 0), (0, 0), (self.center - 1, self.width))
@@ -153,8 +159,42 @@ class Window:
 
 	def handleKey(self, key):
 		if key == ord('o'):
-			self.topPadActive = ~self.topPadActive
+			self.topPadActive = not self.topPadActive
 			log.write("Top pad active? " + str(self.topPadActive))
+		elif key == ord('v'):
+			(y, x) = self.bottomPad.cursor.getRelPosition()
+			log.write("y, x: %d, %d" % (y, x))
+			log.write("curWord, index word: %s, %s" % (str(self.curWord), index.words[y]))
+
+			# New word selected
+			if self.curWord != index.words[y] and self.topPadActive == False:
+			 	self.curWord = index.words[y]
+			 	log.write(str(self.curWord))
+			 	self.curPage = min(map(int, index.iwIndex[self.curWord].values())) # First page for current word				 
+				try:
+					self.curPage = index.iwIndex[self.curWord][x]
+					self.topPad.setText(document.pages[int(self.curPage)].text)
+				except KeyError:
+					self.topPad.setText(document.pages[int(self.curPage)].text)
+			#Same word as before
+			else:
+				try:
+					self.curPage = index.iwIndex[self.curWord][x]
+					self.topPad.setText(document.pages[int(self.curPage)].text)
+				except KeyError:
+					nums = index.iwIndex[self.curWord].values()
+					log.write(str(nums))
+					nums = map(lambda x: int(x), nums)
+					nums.sort()
+					nums = list(set(nums))
+					log.write(str(nums))
+					i = nums.index(self.curPage) + 1
+					if i < len(nums):
+						self.curPage = nums[i] 
+					else:
+						self.curPage = nums[0]
+					self.topPad.setText(document.pages[int(self.curPage)].text)
+							
 		elif self.topPadActive == True:
 			try:
 				self.topPad.handleKey(key)
@@ -263,6 +303,7 @@ def main():
 
 document = Document("./Syllabus.pdf")
 index = Index(document, "wordfile.txt")
+index.indexIW()
 log = Logger("log.txt")
 if __name__ == "__main__":
 	main()

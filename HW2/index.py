@@ -8,6 +8,8 @@ from logger import *
 #indexfilename = sys.argv[2]
 #wordfilename = ""
 
+log = Logger("indexlog.txt")
+
 if len(sys.argv) > 2:
 	wordfilename = sys.argv[3]
 
@@ -88,6 +90,7 @@ class Index:
 			pgnumList = 0
 
 		self.findWord(document, pgnumList)
+		log.write(str(self.location))
 		self.writeOut()
 	
 
@@ -114,8 +117,47 @@ class Index:
 				if len(val) != 0:
 					entry += str(num) + ","
 			output.append(entry[:-1]) 
-		return reduce(lambda x, y: x + y, output)
+			self.IW = reduce(lambda x, y: x + "\n" + y, output)
+		return self.IW
 #		indexFile = open(indexfilename, 'w')
 #		indexFile.writelines(output)
+
+	def indexIW(self):
+		self.iwIndex = {}
+		lines = self.IW.split("\n")
+		tuplesNnums = map(lambda x: x.split(" "), lines)
+
+		nums = [b[1] for b in tuplesNnums]
+		nums = map(lambda x: x.split(","), nums)
+
+		for i in range(len(self.words)): #for line in IW
+			self.iwIndex[self.words[i]] = {}
+			log.write(lines[i])
+			offset = self.calcOffset(lines[i])
+			offset2 = offset[:]
+			offset2.pop(0)
+			offset2.append(len(lines[i]))
+		
+			byteRange = map(range, offset, offset2)
+			for k in range(len(byteRange)):
+				for j in byteRange[k]:
+					self.iwIndex[self.words[i]][j] = nums[i][k]
+ 		log.write(str(self.iwIndex))
+
+	def calcOffset(self, lineText):
+		(words, nums) = lineText.split(" ")
+		baseOffset = len(words) + 1
+		nums = nums.split(",")
+
+		offset = nums[:]
+
+		offset[0] = baseOffset
+		for i in range(1, len(nums)):
+			offset[i] = 1 + offset[i-1] + len(nums[i-1])
+
+		return offset
+
+
+
 
 
