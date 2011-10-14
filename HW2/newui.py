@@ -172,15 +172,16 @@ class Window:
 			 	log.write(str(self.curWord))
 			 	self.curPage = min(map(int, index.iwIndex[self.curWord].values())) # First page for current word				 
 				try:
+
 					self.curPage = index.iwIndex[self.curWord][x]
-					self.topPad.setText(document.pages[int(self.curPage)].text)
+					self.topPad.setText(document.getPage(self.curPage).text)
 				except KeyError:
-					self.topPad.setText(document.pages[int(self.curPage)].text)
+					self.topPad.setText(document.getPage(self.curPage).text)
 			#Same word as before
 			else:
 				try:
 					self.curPage = index.iwIndex[self.curWord][x]
-					self.topPad.setText(document.pages[int(self.curPage)].text)
+					self.topPad.setText(document.getPage(self.curPage).text)
 				except KeyError:
 					nums = index.iwIndex[self.curWord].values()
 					log.write(str(nums))
@@ -193,7 +194,7 @@ class Window:
 						self.curPage = nums[i] 
 					else:
 						self.curPage = nums[0]
-					self.topPad.setText(document.pages[int(self.curPage)].text)
+					self.topPad.setText(document.getPage(self.curPage).text)
 							
 		elif self.topPadActive == True:
 			try:
@@ -210,8 +211,10 @@ class Window:
 					except Exception:
 						pass
 		else: 
-			self.bottomPad.handleKey(key)
-			
+			try:
+				self.bottomPad.handleKey(key)
+			except (Exc.PageUp, Exc.PageDown):
+				pass	
 	
 	def resize(self):
 		log.write("Resizing pads")

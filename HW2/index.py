@@ -64,6 +64,11 @@ class Document:
 		else:
 			raise Exc.BOF()
 
+	def getPage(self, num):
+		num = int(num)
+		self.curPage = num
+		return self.pages[num]
+
 class Index:
 	def __init__(self, document, filename):
 		self.location = {}
