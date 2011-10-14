@@ -25,7 +25,7 @@ class Page:
 		index = self.text[:].lower().find(word)
 		location.append((index, index + len(word)))
 	
-		while index != -1:
+		while index != -1 and len(word) > 0:
 			index = self.text.find(word, index +len(word))
 			location.append((index, index + len(word)))
 
@@ -123,7 +123,8 @@ class Index:
 				if len(val) != 0:
 					entry += str(num) + ","
 			output.append(entry[:-1]) 
-			self.IW = reduce(lambda x, y: x + "\n" + y, output)
+		self.IW = reduce(lambda x, y: x + "\n" + y, output)
+		log.write(self.IW)
 		return self.IW
 #		indexFile = open(indexfilename, 'w')
 #		indexFile.writelines(output)
@@ -133,7 +134,15 @@ class Index:
 		lines = self.IW.split("\n")
 		tuplesNnums = map(lambda x: x.split(" "), lines)
 
+		badWords = filter(lambda x: len(x) != 2, tuplesNnums)
+		tuplesNnums = filter(lambda x: len(x) == 2, tuplesNnums)
+
+		for word in badWords:
+			log.write(str(word))
+			self.words.remove(tuple(word))
+
 		nums = [b[1] for b in tuplesNnums]
+		
 		nums = map(lambda x: x.split(","), nums)
 
 		for i in range(len(self.words)): #for line in IW
