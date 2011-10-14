@@ -156,12 +156,24 @@ class Window:
 		self.topPadActive = True
 		self.refresh();
 
+	def highlightWord(self):
+		if self.curWord != None:
+			# highlight all instances of the words on the curPage
+			for loc in index.location[self.curWord][self.curPage]:
+				(beginY, beginX) = BytetoYX(loc[0],document.getPage(self.curPage).text)
+				(endY, endX) = BytetoYX(loc[1],document.getPage(self.curPage).text)
+				if beginY - self.topPad.scrollY >= 0 and  beginX - self.topPad.scrollX >= 0:
+					self.window.chgat(beginY - self.topPad.scrollY, beginX - self.topPad.scrollX, endX - beginX, curses.A_REVERSE)
+					log.write("highlighting")
+				log.write("high pos: %d, %d" % (beginY, beginX))
+				log.write("locs: %d, %d %d" % (loc[1],loc[0], len(index.location[self.curWord][self.curPage])) )
+
 
 	def handleKey(self, key):
 		if key == ord('o'):
 			self.topPadActive = not self.topPadActive
 			log.write("Top pad active? " + str(self.topPadActive))
-		elif key == ord('v'):
+		elif key == ord('v') and (not self.topPadActive or self.curWord != None):
 			(y, x) = self.bottomPad.cursor.getRelPosition()
 			log.write("y, x: %d, %d" % (y, x))
 			log.write("curWord, index word: %s, %s" % (str(self.curWord), index.words[y]))
@@ -195,7 +207,6 @@ class Window:
 					else:
 						self.curPage = nums[0]
 					self.topPad.setText(document.getPage(self.curPage).text)
-							
 		elif self.topPadActive == True:
 			try:
 				self.topPad.handleKey(key)
@@ -242,17 +253,15 @@ class Window:
 	def refresh(self):
 		if (self.maxY, self.maxX) != self.window.getmaxyx():
 			self.resize()
-
 		self.window.refresh()
-
+		self.highlightWord()
 		if self.topPadActive == True:
 			self.window.move(self.topPad.cursor.absy, self.topPad.cursor.absx)
 			log.write("Setting window cursor: %d, %d" % (self.topPad.cursor.absy, self.topPad.cursor.absx))
 		else: 
 			self.window.move(self.bottomPad.cursor.absy, self.bottomPad.cursor.absx)			
 			log.write("Setting window cursor: %d, %d" % (self.bottomPad.cursor.absy, self.bottomPad.cursor.absx))
-
-
+		
 		self.topPad.refresh()
 		self.bottomPad.refresh()
 
@@ -308,5 +317,6 @@ document = Document("./Syllabus.pdf")
 index = Index(document, "wordfile.txt")
 index.indexIW()
 log = Logger("log.txt")
+log.write(str(index.location))
 if __name__ == "__main__":
 	main()

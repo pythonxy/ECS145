@@ -112,6 +112,7 @@ class Index:
 					wordLocs = wordLocs + temp
 				pagedict[page.pagenum] = wordLocs
 			self.location[wordtuple] = pagedict
+			
 
 	def writeOut(self):
 		output = []
