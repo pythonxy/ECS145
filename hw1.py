@@ -69,13 +69,17 @@ def createAssignments(expression, n):
 
 #Maps bits to correct positions (as given in the expression) 
 def mapBits(mapping, truePatterns):
-	bitList = zip(truePatterns, truePatterns)
-	for bitRow, trueRow in bitList:	
-		for i in range(len(mapping)):
-			bitRow[mapping[i]] = trueRow[i]
-	return [a for (a, b) in bitList]
-
-
+	bitList = []
+	for row in bitList:
+		print row
+	for row in range(len(truePatterns)):	
+		bitRow = [0 for i in range(len(truePatterns[row]))]
+		for elt in range(len(mapping)):
+			bitRow.pop(mapping[elt])
+			bitRow.insert(mapping[elt], truePatterns[row][elt])
+		bitList.append(bitRow)
+	return bitList
+	
 #Determines the bit-mapping (based on indices given in the expression)
 def createMapping(expression, n):
 	mapping = []
@@ -104,12 +108,18 @@ def collectExpressions(possible, expLens):
 #Returns a bpcoll object containing all satrisfying bit patterns for a given expression
 def getpatts(expression, n):
 
+	expression = [list(set(a)) for a in expression]
+	for a in expression:
+		print a
+
 	# create all possible bit assignments
 	possibles = createAssignments(expression, n)
 	
 	# create bit mapping based on expression 
 	mapping = createMapping(expression, n)	
 	truePatterns = []	
+
+
 
 	expLens = map(len, expression)
 	totalLen = reduce(lambda x, y: x+y, expLens)
@@ -121,18 +131,19 @@ def getpatts(expression, n):
 	tempPatterns = filter(evaluateAssignment, zip(assignment, possibles))
 	truePatterns = [b for (a, b) in tempPatterns]
 
+
 	# map bits to correct positions
 	mappedPatterns = mapBits(mapping, truePatterns)	
-	
+
 	bitCollection = bpcoll(n)
 	for i in range(len(mappedPatterns)):
-		mappedPatterns[i].reverse()
+		print mappedPatterns[i]
 		bitCollection.bpadd(mappedPatterns[i])
 
 	return bitCollection
 		
 def main():
-	b = getpatts([[0, 1], [2]], 4)
+	b = getpatts([[2, 1, 0], [4]], 5)
 	b.bpsprint()
 
 if __name__ == "__main__":
