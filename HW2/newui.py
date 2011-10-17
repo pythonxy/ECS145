@@ -1,8 +1,7 @@
 import curses
-from logger import *
 import Exc
 from index import *
-
+import sys
 
 class Cursor:
 	
@@ -16,12 +15,10 @@ class Cursor:
 	def moveX(self, val):
 		self.x += val
 		self.absx += val
-		log.write("Cursor moved to: %d, %d" % (self.absy, self.absx))
 
 	def moveY(self, val):
 		self.y += val
 		self.absy += val
-		log.write("Cursor moved to: %d, %d" % (self.absy, self.absx))
 
 	def setX(self, val):
 		self.x = val
@@ -64,7 +61,6 @@ class Pad:
 		for i in range(n):
 			if y < len(self.lines) and x+i < len(self.lines[y]):
 				char = self.lines[y][x+i]
-				log.write("Changing char: %d, %d" % (y, x))
 				self.pad.addch(y,x+i,char,attr)
 				self.pad.touchline(y, 1, 1)
 		self.refresh()
@@ -121,29 +117,22 @@ class Pad:
 		return False
 
 	def checkScroll(self, y, x):
-		log.write("Checking scrolling")
-		log.write("boxLocY, boxY: %d, %d" % (self.boxLocY, self.boxY))
 		if y > self.boxY:
-			log.write("Caught scroll down event")
 			self.scrollY += 1
 			self.cursor.moveY(-1)
 		elif y < self.boxLocY and self.scrollY > 0:
-			log.write("Caught scroll up event")
-			log.write("MaxY, MaxX: %d, %d" % (self.maxY, self.maxX))
+
 			self.scrollY -= 1
 			self.cursor.moveY(1)
 		elif x > self.boxLocX + self.boxX:
-			log.write("Caught scroll right event")
 			self.scrollX += 1
 			self.cursor.moveX(-1)
 		elif x < self.boxLocX and self.scrollX > 0:
-			log.write("Caught scroll left event")
 			self.scrollX -= 1
 			self.cursor.moveX(1)
 
 
 	def refresh(self):
-		log.write("Calling pad refresh with scroll = (%d, %d), origin = (%d, %d), size = (%d, %d)" % (self.scrollY, self.scrollX, self.boxLocY, self.boxLocX, self.boxY, self.boxX))
 		self.pad.refresh(self.scrollY, self.scrollX, self.boxLocY, self.boxLocX, self.boxY, self.boxX)
 
 
@@ -162,7 +151,6 @@ class Window:
 		self.indexPage = -1 
 
 
-		log.write("width, center: %d, %d" % (self.width, self.center))
 
 		self.topPad = Pad((0, 0), (0, 0), (self.center - 1, self.width))
 		self.bottomPad = Pad((self.center + 1, 0), (0, 0), (self.center - 1, self.width))
@@ -180,7 +168,6 @@ class Window:
 				#if self.sequenceInTopBounds(beginY, beginX, endY, endX):
 				self.topPad.chgat(beginY, beginX, endX - beginX, curses.A_REVERSE)
 
-				log.write("high pos: %d, %d" % (beginY, beginX))
 
 	
 	def sequenceInTopBounds(self, beginY, beginX, endY, endX):
@@ -194,19 +181,14 @@ class Window:
 		if key == ord('o'):
 			self.topPadActive = not self.topPadActive
 			self.moved = False
-			log.write("Top pad active? " + str(self.topPadActive))
 
 		elif key == ord('v') and (not self.topPadActive or self.curWord != None):
 			(y, x) = self.bottomPad.cursor.getRelPosition()
-			log.write("y, x: %d, %d" % (y, x))
 			if y >= len(index.words):
 				return
-			log.write("curWord, index word: %s, %s" % (str(self.curWord), index.words[y]))
-			log.write("Pressed v!")
 			# New word selected
 			if self.curWord != index.words[y] and self.topPadActive == False:
 			 	self.curWord = index.words[y]
-			 	log.write(str(self.curWord))
 			 	self.indexPage = min(map(int, index.iwIndex[self.curWord].values())) # First page for current word				 
 				self.displayPage = self.indexPage
 				try:
@@ -220,8 +202,6 @@ class Window:
 			else:
 				try:
 					tempPage = index.iwIndex[self.curWord][x]
-					log.write("display, index before move check: %d %d" % (int(self.displayPage), int(self.indexPage)))
-					log.write(str(self.moved))
 					if int(self.displayPage) == int(tempPage) or self.moved == False:
 						raise KeyError
 					self.indexPage = tempPage
@@ -229,18 +209,14 @@ class Window:
 					self.topPad.setText(document.getPage(self.indexPage).text)
 				except KeyError:
 					nums = index.iwIndex[self.curWord].values()
-					log.write(str(nums))
 					nums = map(lambda x: int(x), nums)
 					nums = list(set(nums))
 					nums.sort()
-					log.write(str(nums))
 					i = nums.index(int(self.indexPage)) + 1
 					if i < len(nums):
-						log.write("i: %d" % (i))
 						self.indexPage = nums[i]
 						self.displayPage = self.indexPage 
 					else:
-						log.write("Wrapping with i: %d" % (i))
 						self.indexPage = nums[0]
 						self.displayPage = self.indexPage
 					self.topPad.setText(document.getPage(self.indexPage).text)
@@ -272,11 +248,9 @@ class Window:
 				pass	
 	
 	def resize(self):
-		log.write("Resizing pads")
 
 		self.setDimensions()		
 		
-		log.write("width, center: %d, %d" % (self.width, self.center))
 
 		topText = self.topPad.text
 		self.topPad = Pad((0, 0), (0, 0), (self.center - 1, self.width))
@@ -299,14 +273,10 @@ class Window:
 
 		if self.topPadActive == True:
 			self.window.move(self.topPad.cursor.absy, self.topPad.cursor.absx)
-			log.write("Setting window cursor: %d, %d" % (self.topPad.cursor.absy, self.topPad.cursor.absx))
 		else: 
 			self.window.move(self.bottomPad.cursor.absy, self.bottomPad.cursor.absx)			
-			log.write("Setting window cursor: %d, %d" % (self.bottomPad.cursor.absy, self.bottomPad.cursor.absx))
 		
-		log.write("display, index: %d %d" % (int(self.displayPage), int(self.indexPage)))
 		if int(self.displayPage) == int(self.indexPage):
-			log.write("Called highlight on page " + str(self.displayPage))
 			self.highlightWord()
 		self.bottomPad.refresh()
 		self.topPad.refresh()
@@ -358,12 +328,28 @@ def main():
 		
 	finally:
 		window.stop()
-		log.close()
 
-document = Document("./FastLanePython.pdf")
-index = Index(document, "wordfile.txt")
+SysGlobals.pdfname = sys.argv[1]
+SysGlobals.indexfilename = sys.argv[2]
+SysGlobals.wordfilename = ""
+
+print sys.argv
+print len(sys.argv)
+
+if len(sys.argv) > 3:
+	SysGlobals.wordfilename = sys.argv[3]
+
+document = Document(SysGlobals.pdfname)
+index = None
+
+if len(sys.argv) > 3:
+	print "Calling with wordfile"
+	index = Index(document, SysGlobals.wordfilename)
+else:
+	print "Calling with indexfile"
+	index = Index(document, SysGlobals.indexfilename)
 index.indexIW()
-log = Logger("log.txt")
-log.write(str(index.location))
+
 if __name__ == "__main__":
 	main()
+
