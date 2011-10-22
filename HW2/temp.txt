@@ -1,0 +1,760 @@
+ECS 145, Scripting Languages
+
+         Norm Matloff
+
+           Fall 2011
+
+
+
+
+     FOLLOW
+   DIRECTIONS!
+
+
+
+
+              1
+Contents
+
+1   Required Course Materials                                                                                    5
+    1.1     Textbooks . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    5
+
+2   What Is This Course--and What Is It NOT?                                                                     5
+
+3   Workload                                                                                                    5
+
+4   Prerequisites                                                                                               5
+
+5   Machines                                                                                                    6
+
+6   Each Student Must Have His/Her Own Course Materials                                                          6
+
+7   Bring the Course Materials with You to Class                                                                 6
+
+8   Terminology                                                                                                 6
+
+9   Tests                                                                                                       7
+    9.1     Exam Schedule . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .      7
+    9.2     Quizzes . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    7
+    9.3     Open-Materials Policy . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .      7
+    9.4     Electronic Devices . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     7
+    9.5     Work Only on the Test Sheet . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .      8
+    9.6     How to Do Well on the Exams . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .        8
+            9.6.1   Think, Not Memorize . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .      8
+            9.6.2   Old Tests Yes, "Practice" Tests No . . . . . . . . . . . . . . . . . . . . . . . . . . .     8
+            9.6.3   Homework-for-Learning Yes, Homework-as-Practice-for-Tests No . . . . . . . . . .             8
+            9.6.4   Concentrate During Class . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .       8
+
+10 Regarding Academic Dishonesty                                                                                 9
+    10.1 UC Davis Honor Code . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .           9
+    10.2 Tests . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     9
+    10.3 Homework . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+
+11 Lecture Format                                                                                               10
+    11.1 Bring the Materials to Lecture . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+    11.2 Please Do NOT Use Laptops or Tablets During Lecture . . . . . . . . . . . . . . . . . . . . 10
+
+
+
+                                                         2
+12 The Discussion Section                                                                                  11
+
+13 Groups                                                                                                  11
+   13.1 Forming Groups . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+   13.2 Getting a Failing Grade in the Course Due to Nonparticipation in Your Group . . . . . . . . 12
+
+14 Our Class Web Page and Blog                                                                             12
+
+15 Homework                                                                                                12
+   15.1 Homework Due Dates . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12
+   15.2 Announcements . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12
+   15.3 Package Your Homework Files . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12
+   15.4 Timestamp Your Package . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12
+   15.5 Grading . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+   15.6 If You Need Help, Hints, Etc. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+        15.6.1 We Are Happy to Help If You Have Reached an Impasse . . . . . . . . . . . . . . . 13
+        15.6.2 Help by E-Mail . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+        15.6.3 Start Early! . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 14
+   15.7 Late Work . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 14
+   15.8 Reading Homework . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 14
+
+16 Grading                                                                                                 15
+   16.1 Weighting . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15
+   16.2 + and - Grades . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15
+   16.3 Quizzes Grade . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15
+   16.4 Homework Grade . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15
+        16.4.1 Assignment of Letter Grades . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15
+        16.4.2 You Must Turn in All Assignments to Pass the Course . . . . . . . . . . . . . . . . 16
+        16.4.3 You Should Get an A or A- on the Homework . . . . . . . . . . . . . . . . . . . . . 16
+   16.5 Intangibles . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16
+        16.5.1 Back Up Your Files Frequently! . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16
+   16.6 Accuracy of Records . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16
+
+17 I Do Care!                                                                                              17
+
+A Programming Issues                                                                                       17
+   A.1 Style . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 17
+
+
+                                                     3
+A.2 Debugging . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 17
+     A.2.1 Use a Debugging Tool! . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 17
+
+
+
+
+                                                 4
+1      Required Course Materials
+
+1.1     Textbooks
+
+The textbooks are my open source books. You can buy them at the campus bookstore (printed at cost), or can
+download them at http://heather.cs.ucdavis.edu/~matloff/145/PLN/FastLanePython.
+pdf and http://heather.cs.ucdavis.edu/~matloff/145/PLN/RMaterials/145R.pdf.
+
+
+2      What Is This Course--and What Is It NOT?
+
+What this course IS:
+
+      · This is a course in scripting languages.
+
+      · We'll cover one general language, Python, and one data language, R.
+
+      · In the case of R, it will be viewed as a programming language--object-oriented and functional
+        programming-based--rather than focusing on its statistical procedures.
+
+      · We discuss the philosophy of scripting languages--their aims, their pros and cons.
+
+What this course is NOT:
+
+      · The course is not about syntax. Lectures won't be spent delineating where one puts the commas.
+        You'll learn this information on your own, in order to do the Homework. You won't be tested on
+        things like the most general form of naming R variables, say.
+
+      · Similarly, the course does not aim to cover every nook and cranny of Python and R.
+
+      · Nor does the course aim to cover the latest, greatest version of Python, 3.0. The latter has not attained
+        a great following, and in any case see the previous bullet.
+
+
+3      Workload
+
+The Homework will consist of approximately four or five assignments.
+IN ORDER TO ACHIEVE A DECENT GRADE, PLAN TO SPEND SIGNIFICANT TIME ON
+CAREFUL READING OF THE TEXT, AT LEAST FIVE HOURS PER WEEK.
+All in all, the number of hours per week you'll put in should be similar to something like ECS 60.
+
+
+4      Prerequisites
+
+You should be familiar with basic concepts of data structures and algorithms on the level of ECS 60, and
+have experience writing code (in any language) to read and write files.
+But by far the most important prerequisite is that you are a programmer. If you've made it this far without
+ever written a program from scratch on your own, without help or an outline from an instructor, you will find
+
+                                                        5
+this course very difficult. On the other hand, if you're good at coding, you (hopefully) will find the course
+fun.
+Python and R are available for every major platform--Linux, Windows and Macs. However, I strongly
+prefer to that you run on Linux, as that would make it easier for me to help you fix your bugs. So,
+a basic background in Linux at the level of usage of ECS 40 would be helpful but not required. Prior
+background in Python or R themselves is NOT required.
+
+
+5    Machines
+
+Our base machines will be the Linux PCs in the CS instructional labs (CSIF). If you pre-enrolled in this
+course, or if you took a CS course last quarter, you should already have an account.
+When you write code, it is not considered valid unless it works on CSIF.
+HERE IS A SHOCK FOR SOME OF YOU: Most jobs obtained by UC graduates in the computer area are
+at firms that are either fully or partially based on Linux or some other kind of Unix. Google is such a strong
+Linux shop that it has developed its own version of Linux, Goobuntu. You probably know that Android, the
+popular OS for smartphones and tablets, is a variant of Linux. Apple's OS is Unix-based.
+Intel has complained that UCD grads don't know Linux well. Of course, students from UC Berkeley
+know Linux thoroughly.
+In other words: If you've been using Windows to do your CS Homework, you've been limiting your future
+career opportunities! Not a smart strategy, right?
+So, if you don't know Linux, you should remedy that problem now, to enhance your future career prospects.
+And the only way to learn it is to USE IT IN YOUR DAILY LIFE--not just for coursework, but also for
+e-mail, writing term papers, developing Web pages, video editing, and so on.
+I have a Linux installation and usage tutorial at http://heather.cs.ucdavis.edu/~matloff/
+linux.html. If you are going to use Linux in your daily life, as again I urge you to do, then I recommend
+installing on a dual-boot basis. Otherwise, install on USB key or an external hard drive. Instructions are
+given in my tutorial.
+
+
+6    Each Student Must Have His/Her Own Course Materials
+
+Note that Tests are open-book, and there is no sharing of books or other materials during Tests. Thus every
+student must have his/her own hard copy of the textbook and any other course materials.
+
+
+7    Bring the Course Materials with You to Class
+
+Bring the entire textbook and other course materiels to lectures, discussion sections and Tests.
+
+
+8    Terminology
+
+    · the term Exam refers to the midterm examination given in lecture; there is also a take-home project
+      that serves as the Final Exam and the last Homework assignment; see Section 9.1
+
+
+                                                      6
+        · the term Quizzes refers to short tests given in discussion section; see Section 9.2
+
+        · the term Tests refers to the Exam and Quizzes
+
+        · the term Homework includes both math and programming work (most courses, other than ECS 132/256,
+          won't have math work)
+
+
+9        Tests
+
+9.1       Exam Schedule
+
+There will be one midterm Exam, approximately at the 8-week point of the quarter.
+There are no early or late midterm Exams. Provisions for oral makeup Exams will be made if you have a
+medical excuse. Note: Oral Exams are very difficult for the student, and are difficult for the professor to
+grade. Try to avoid this situation if possible.
+The Final Exam will be take-home and collaborative with your Homework Group, submitted by e-mail to
+me. It will be due at 11:59 p.m. of the official final Exam date for the class. (Heavy penalties will be
+imposed for lateness.) Details will be given later.
+
+
+9.2       Quizzes
+
+A Quiz will be given almost every week in discussion section. Quizzes will not be announced; assume that
+there will be one each week.
+Quizzes will be shorter than Exams, typically about 30 minutes long and about four questions in length.
+They will consist largely of fill-in, multiple choice and very short-answer questions, and thus will not probe
+quite as deeply as the Exam will.
+The Quizzes will be graded by the TA, who will give you letter grades on them.
+The last Quiz, given in lecture on the last day of class, will consist of an in-class group project.
+
+
+9.3       Open-Materials Policy
+
+TESTS ARE TAKEN ON AN OPEN-MATERIALS BASIS. Bring the textbook and other course materi-
+als with you to each Test. You are also welcome to bring whatever other materials you wish, e.g. technical
+books, dictionaries, whatever you want. Whatever you bring, make absolutely sure that you remember to
+bring all your course materials, as many of the Test questions will refer to specific pages in them.
+Please note that in program code on the Tests you are only allowed to use language, functions, etc. constructs
+presented in our course.
+
+
+9.4       Electronic Devices
+
+You are not allowed to use any electronic devices, INCLUDING CALCULATORS, during Tests.1 (Only
+simple arithmetic computations will be required.)
+    1
+        In programming-oriented courses, the last Quiz will involve programming on your own laptops, in your Groups.
+
+
+
+                                                                 7
+9.5     Work Only on the Test Sheet
+
+Please work ONLY on the test sheet, front and back. Do NOT turn in any supplementary sheets of paper. A
+DEDUCTION OF 5 POINTS WILL BE MADE FOR NOT FOLLOWING THIS POLICY. Please, it's
+important.
+
+
+9.6     How to Do Well on the Exams
+
+9.6.1    Think, Not Memorize
+
+The Test questions assess insight, not memorization. In a software class, for instance, the slogan is "test for
+insight, not for syntax." The Tests assume active reading and thinking about the material.
+If for example you encounter a statement in the reading which
+puzzles you, don't just skip it--ask me or the TA about it. A Test
+question may later ask you to explain it.
+
+
+9.6.2    Old Tests Yes, "Practice" Tests No
+
+Please note carefully that I do not give practice Tests. This is because I believe that learning does not
+consist of memorizing, and because computer science courses are not like "calculus-style" courses:
+Calculus courses can have practice Tests because the real Tests have predictable, technique-oriented content.
+In a calculus class, you might have a lecture on integration by parts, then have a Homework assignment of
+integration-by-parts problems, and then on the exam there would be a couple such problems.
+This would be impossible in my courses because every Test problem is unique, and the problems test
+understanding of concepts, rather than techniques. Thus, it would be impossible to have practice
+Tests. Actually, even if I were to teach calculus, I would not give practice Tests, again because learning is
+not memorizing.
+Sometimes during a lecture I do mention a "focus area" that could be featured in an upcoming Test. For
+instance, I may say, "I really want you to know this particular example especially well," and then the Test
+may contain a question (or even more than one question) on this example.
+
+
+9.6.3    Homework-for-Learning Yes, Homework-as-Practice-for-Tests No
+
+Similar to the point that I do not give practice Tests, it is important to understand that the Homework is not
+considered practice for Tests either. The goal of the Homework is to give you a chance to think more deeply
+about the material, and to nonpassively implement some of the course concepts. Sometimes an Test problem
+will indeed be similar to some Homework problem, but most Test problems will be quite new.
+Again, the best way to prepare for Tests is to constantly sift the material through your mind in a nonpassive
+manner, thinking about questions involving How?, Why/Why Not? What is the goal? and so on. The
+Homework will really help you prepare for Tests in this sense, because it will make you think thoroughly
+about the course material, but you should not expect problems to be explicitly similar to the Homework.
+
+
+9.6.4    Concentrate During Class
+
+MAKE SURE TO LISTEN CAREFULLY IN CLASS.
+
+                                                      8
+Weird statement! What does it mean?
+Many Test problems will come from the answers I give to questions students ask during lecture, or will be
+related to off-hand remarks I make during lecture when I suddenly get an inspiration.
+Therefore, listen carefully to questions students ask in class, and to the answers I give. Make a note of
+seemingly-casual comments I make in lecture, and think about them carefully at home. These things may
+well pop up in Tests. Such questions will still be answerable from the course materials if you miss class, but
+there is a definite advantage to paying close attention in class.
+
+
+10         Regarding Academic Dishonesty
+
+An embarrassing subject which nevertheless must be mentioned is academic dishonesty, i.e. cheating.
+If a student is found to be cheating, it will be treated as a VERY SERIOUS matter, not a harmless
+prank. It will harm his/her standing at the university, and also possibly make it difficult for him/her
+to get a job when seeking employment after graduation.
+
+
+10.1        UC Davis Honor Code
+
+You can find the UC Davis Honor Code at http://sja.ucdavis.edu/files/CAC.PDF. Our
+course will be conducted according to that code, as of course all classes are.
+There is nothing surprising in the code; it's just common sense.
+
+
+10.2        Tests
+
+Official university policy2 forbids
+
+           "Wandering eyes," talking during exams...or leaving the exam room without permission.
+
+Please work as follows during Tests:
+
+       · Try to sit in alternate seats if possible.
+
+       ·   ABSOLUTELY NO TALKING to classmates at any time during the Test, ESPECIALLY
+           INCLUDING during the time the TA or professor is collecting the Tests.
+
+       · Keep your Test paper covered when you are not actually writing, so that it will not be so exposed to
+         view.
+
+       · It would be greatly appreciated if you USE THE RESTROOM BEFORE THE EXAM
+         STARTS, RATHER THAN DURING THE EXAM. Please do not be offended if
+         the instructor or TA reminds you of this policy. And never leave the exam room without permission.
+
+During a Test, if your paper is exposed, I or the TA will come to you and mention this to you. If the TA or
+professor has to talk to a student twice about the rules, the professor will hold a conference with that student.
+Thanks very much for your help.
+   2
+       See the Class Schedule and Registration Guide.
+
+
+                                                        9
+10.3   Homework
+
+Outright copying of homework, whether in the form of code or algorithm or math, is of course a serious
+violation of university policy and personal ethics. Similarly, asking for advice on the Internet, or paying
+people for advice, is again a serious violation of university policy and personal ethics.
+However, you are welcome, and indeed encouraged, trade tips with people in other Homework groups. You
+may also on rare occasions ask people whom you know outside the class for hints, say friends or relatives
+who have some knowledge of the field.
+You are also welcome to make reasonable use of the Web. For example, I'm a big fan of Wikipedia and
+there is a ton of material on there.
+I will use the MIT policy here: At the top of your Homework writeup, list the names of people outside
+your Homework group from whom you've received advice. Also list Web sites you've made use of, if
+any.
+Obviously, it is not allowed that you divide work across assignments (i.e. assignments with different due
+dates), with part of your group doing the odd-numbered assignments and the other part doing the even-
+numbered assignments. This is considered dishonest.
+Obviously, dividing work across courses is even more dishonest. If you and your friend are both taking
+courses X and Y, and you agree that you do all the work in X and your friend does all the work in Y, then
+you will be referred to Student Judicial Affairs with formal charges of dishonesty.
+
+
+11     Lecture Format
+
+11.1   Bring the Materials to Lecture
+
+Make sure you bring the textbook to every lecture. It will play a very active role in the lectures.
+I very seldom write on the blackboard. Instead, I talk.
+What I talk about is pages in the textbook. I typically will ask you to open to a certain page, and then
+will call your attention to various sentences, examples and pictures on that page. The lectures will consist
+mainly of discussion and amplification of the examples in the textbook, with additional examples and
+comments.
+Please note again: I will seldom write on the blackboard. My lecture notes are already there, right there in
+the open source textbook. SINCE THE TEXTBOOK ALREADY CONTAINS MY LECTURE, YOU
+DON'T TAKE NOTES (other than miscellaneous comments in the margin). THIS FREES YOUR
+ATTENTION TO ASK QUESTIONS AND TO ENGAGE IN CLASS DISCUSSION.
+You are very much encouraged to bring up any questions you might have. Please don't be shy about asking
+questions; there is no such thing as a "dumb" question. Similarly, listen carefully to the questions the other
+students ask; this can be a very valuable source of insight, to which you should pay special attention.
+
+
+11.2   Please Do NOT Use Laptops or Tablets During Lecture
+
+Really, this is rude. And though it has become commonplace, I (and many other professors) do not like it,
+and surveys have shown that many of your fellow students are annoyed by it too.
+YOU ARE EXPECTED TO REFRAIN FROM USING LAPTOPS OR TABLETS IN CLASS. If some sort
+
+
+                                                      10
+of urgent need arises, I would rather you use the machine in class rather than leaving the room and missing
+the lecture. But...in such a situation, please move to the back of the room in order not to distract. (The
+problem is not that you might be doing non-class-related Web surfing, which doesn't bother me, but rather
+that it simply is distracting.)
+And for those who normally use laptops for notetaking, remember, the notes are already taken for you! See
+Section 11.1 above.
+
+
+12     The Discussion Section
+
+THE DISCUSSION SECTION IS REQUIRED. It will be used for the pur-
+pose of giving Quizzes, and for presenting material not covered in lecture. (That material will appear on
+Tests.)
+Please note that the purpose of the discussion section is NOT use as a forum for asking questions on how to
+do the Homework. As stated in Section 15.6, the TA and I are happy to help you with the Homework, but
+this should be done on an individual basis, not as a class. Please ask your questions either in office hours, or
+by e-mail, or individually after lecture or discussion.
+
+
+13     Groups
+
+The following will be done in groups:
+
+     · Homework
+
+     · the last Quiz of the quarter, in class
+
+     · the Final Exam, a take-home project
+
+So, get to be very good friends with your Group, as you be working with them constantly!
+
+
+13.1     Forming Groups
+
+Group size must be at least three and no more than four.
+You must submit to the TA your Group membership lists by 11:59 p.m. of the day of the second lec-
+ture, or the first discussion section, whichever comes later (unless there is no first discussion section).
+If you are not yet in a Group, or have only a partial Group, ask the TA to assign you to a Group. Often, the
+TA will use the first discussion section to organize groups. Later, notify the TA immediately if, due to drops,
+your Group size falls below two.
+In working with your partners, you must work TOGETHER, instead of simply dividing up the work among
+the partners. I've seen many cases in which the partners do the latter, with the sad result that they, for
+instance, miss an easy 30-point problem on a Test. CLEARLY, THIS SHOULD BE AVOIDED!
+ALL MEMBERS OF THE GROUP MUST BE PRESENT DURING GRADING. When you present your
+work in interactive grading, the TA will ask questions of all members of the Group, to make sure everyone
+understands. If not, some members will get lower grades than others. See more on this in Section 15.5.
+
+
+                                                      11
+13.2   Getting a Failing Grade in the Course Due to Nonparticipation in Your Group
+
+YOUR HOMEWORK PARTNERS DEPEND ON YOU. Failure to work cooperatively with them, may
+result in a substantial penalty being applied to your course grade, which could drop to an F. Note that
+one type of such failure involves failure to prepare properly by doing the assigned reading BEFORE you
+start the Homework,
+
+
+14     Our Class Web Page and Blog
+
+Our class Web page is at http://heather.cs.ucdavis.edu/~matloff/xxx.html, where xxx
+is, e.g. 132 for ECS 132. It contains information on office hours and the like.
+Our class Blog is linked to from our class Web page. IT IS REQUIRED THAT YOU READ THE BLOG
+EVERY DAY; it's used to announce Homework assignments (including clarifications), Exams and so on.
+
+
+15     Homework
+
+We will have approximately four or five Homework assignments through the quarter.
+
+
+15.1   Homework Due Dates
+
+The term due date means 11:59 p.m. of the stated date.
+
+
+15.2   Announcements
+
+Homework assignments will be announced in the class Blog. The Homework files themselves will be on the
+course Web site, so look there when an assignment is announced on the Blog.
+Occasionally there will be news about a current Homework assignment, such as clarifications, hints and so
+on. These will be announced in the Blog.
+
+
+15.3   Package Your Homework Files
+
+It is REQUIRED that you use the Linux tar command to package all of your files, be there source code,
+.pdf or whatever, into one .tar file, say named Hwk2.tar.
+
+
+15.4   Timestamp Your Package
+
+(Note to ECS 132 students: Starting Fall 2011, these procedures, and those for interactiven grading, will be
+changed slightly. This will be announced.)
+Then run the Linux sum command on the .tar file to produce a checksum, which is kind of a code number
+which is (for all practical purposes) unique to that file. E-mail that checksum (two numbers, actually) and
+your .tar file name (but not the file itself), to the TA. The date and time on your e-mail will verify that you
+sent the mail before the deadline. Then later during the grading, the TA will run sum again, and the fact
+
+
+
+                                                      12
+that the checksum has not changed will show that you have not changed the file subsequent to sending the
+e-mail.
+
+
+15.5     Grading
+
+We will use interactive grading. The TA will announce Homework grading times, and each Homework
+Group will sign up for a time slot. All members of the Group must be present during the grading time.
+During a Group's time slot, the Group will log in to their account to access their files. They will then explain
+their Homework solution, and in the case of a program demonstrate that it works. In the case of analytical
+Homework, the Group will explain the reasoning behind the work.
+The TA will ask each member of the Group questions to confirm that he/she understood what the Group
+did. For example, such questions might ask how a mathematical solution would change if the problem
+statement were slightly different. Again, the purpose of these questions is to ensure that all partners are
+actively involved in all the work. The TA will assign separate grades for each Group member. Normally
+these grades will be identical, but if there is a substantial disparity in the levels of understanding the
+different Group members have regarding the assignment, the TA will assign different scores to each
+member.
+
+
+15.6     If You Need Help, Hints, Etc.
+
+15.6.1    We Are Happy to Help If You Have Reached an Impasse
+
+Please note that Homework assignments here will NOT lay out
+a detailed recipe, with tons of hints, telling you how to do the
+problems.
+The work is designed to be challenging and thought-provoking. This thought-provoking nature of the assign-
+ments is the vehicle by which you get to really understand the concepts. You are not necessarily expected to
+see right away how to do an assignment. Instead, you are expected to spend a considerable amount of time
+pondering the assignment, gradually seeing more and more, until you finally see how to do the whole thing.
+It is that thought process which will develop insight into the course material.
+The TA and I will be quite happy to help you, definitely including giving you hints--but only if, after
+giving a matter considerable thought, you still don't see what to do. Once you have reached the point
+where you cannot go any further, we very much encourage you to seek help from us. We want you to do
+well on the Homework!
+
+
+15.6.2    Help by E-Mail
+
+Again, you are welcomed and strongly encouraged to send me e-mail, at the address matloff@cs.ucdavis.edu,
+for help on Homework assignments. But you can help me if you keep the following in mind:
+
+   · Please do NOT send me e-mail in HTML format, or with lines longer than 80 characters. If you
+     do, I will of course still answer it, but my answer will not be as clear or as detailed. This is because
+     when replying to e-mail, I like to quote parts of the original message, making the reply clearer. I
+     cannot do this easily if your mail is in HTML or has long lines.
+
+
+
+                                                      13
+   · Make sure you have clear indenting and commenting in your code. (Again, for your own benefit, do
+     NOT add these at the last minute; use them from the very beginning as you write your program.)
+
+   · If you send me e-mail asking what to do about some error message, please send me (in a .tar file your
+     source code and the typescript of running script. In the latter, it would also be helpful to run pwd
+     and echo $path so I know your environment.
+
+
+15.6.3   Start Early!
+
+Please make sure to start the Homework soon after it is assigned. Don't wait until the last couple of
+days before the due date, because when the due date approaches, I tend to be inundated with e-mail
+messages asking for help on the Homework, and thus my answers at that time will necessarily be
+short and without details, since I won't have time to say more.
+
+
+15.7     Late Work
+
+An assignment is late if it is submitted to the TA after the due date. If--this should never happen, but just
+if--you are late, you will be assessed a 5% penalty the first late day, and 10%-per-day penalty after that in
+your grade for that assignment. (Since e-mail is available every day, each of the seven days of the week
+counts as one day.) The maximum total penalty is 50%.
+Each project Group will be allowed a total of 2 late days over the quarter, time which is not penalized. You
+can use this as being late 2 days with no penalty on one assignment, or as being late 1 day with no penalty
+in each of two assignments.
+In order to use this option, you must submit your work during the time you are using as your grace period.
+If for example you are 3 days late on an assignment, you will not be allowed to use your grace period time
+on that assignment; it will simply be counted as 3 days late.
+Don't squander your grace period days in the first assignment. The subsequent ones will almost certainly be
+more difficult, so save your grace time for then.
+The TA will keep the appropriate records as to how many days of grace period you have used..
+
+
+15.8     Reading Homework
+
+UC Berkeley professor Doug Giancoli is the author of a number of best-selling textbooks on physics. He
+has been writing books for decades, taking enormous care in writing them, agonizing over just the right
+phrasing and so on. So imagine his profound disappointment when I told him that most students don't read
+their assigned textbooks!
+You should read your textbooks, and in the case of our course, it is crucial. The reading--in the textbook--
+is extremely important, and should be considered "Homework." As mentioned earlier, many the exam
+questions will come from the reading.
+After each lecture, do the corresponding reading. Do the reading PROMPTLY, that same day, rather
+than getting behind. This is the only way that you can get any insight from the reading; doing the reading
+the night before an exam will not work. If you still have not done the reading as of the night before
+the exam, you actually will be better off not doing it, and getting more sleep instead, as cramming
+overnight won't be beneficial.
+
+
+
+                                                     14
+16       Grading
+
+Grading is noncompetitive (there is no "curve"), so it is possible for everyone to do well.
+
+
+16.1      Weighting
+
+The formula used is
+
+course grade = 0.45 x Quizzes grade + 0.30 x Exam grade + 0.25 x Homework grade
+
+where the Exam, Homework and Quizzes grades are each on the 4-point scale (4 for an A, 3 for a B, etc.).
+Remember, the Final Exam is considered part of the Homework.
+Missing the Exam will result in an "I" (Incomplete) grade for the course; it will not merely be treated as an
+F.
+
+
+16.2      + and - Grades
+
+The threshhold for a grade of n is (n-1).85; the threshhold for an `n-' grade is (n-1).6; the threshhold for a
+`+' grade is n.2. So, for example, if your weighted average from the above formula is between 2.6 and 2.84,
+your course grade is B-; if the average is between 2.85 and 3.19, your course grade is B; if the average is
+between 3.2 and 3.59, your grade is B+.
+
+
+16.3      Quizzes Grade
+
+You will get a letter grade on each Quiz.
+In recognition of the fact that on (rare) occasions you will not be able to attend discussion section, or you
+simply will have an "off day," your lowest two (letter) Quiz grades will be thrown out. Your other Quiz letter
+grades will be averaged to produce your overall Quizzes grade.
+Missing many Quizzes may result in an F grade for the course, regardless of the grades on the Quizzes,
+Exam and Homework.
+
+
+16.4      Homework Grade
+
+16.4.1     Assignment of Letter Grades
+
+You will receive a letter grade on each Homework assignment. The instructor has directed the TA to evaluate
+your work as follows:
+
+         Assessment of the quality of a Homework Group's work is to be based on the TA's judgment,
+         subject to the following guidelines. Since the TA and instructor provide whatever help is needed
+         (though as a "last resort"), it is expected that most students will get A or A- grades on the Home-
+         work assignments, with an A- indicating that the work was correct except for minor problems.
+         Grades in the B range are to be given if the material is "mostly correct," while grades below
+         that range will be given for work of lesser quality.
+
+
+                                                         15
+Note carefully that students in a Homework Group are assigned grades individually. Though they typically
+will all get the same grade, that is not necessarily the case. See Section 13.
+
+
+16.4.2    You Must Turn in All Assignments to Pass the Course
+
+Note that all Homework assignments must be completed in order to get a passing grade in the course. If you
+are missing any assignment, INCLUDING BEING FOUND NOT TO HAVE WORKED ACTIVELY
+WITH YOUR HOMEWORK PARTNERS, you may be given either an F or an I grade for the course.
+
+
+16.4.3    You Should Get an A or A- on the Homework
+
+I aim for the vast majority of the class to get an A or A- on the Homework. Lots of help is available, so
+this aim should be achievable. (And it is; I use this policy in every course I teach, and it always works out
+that most people get A or A- Homework grades.)
+The most important part of getting a good Homework grade is to start an assignment as soon as it is
+assigned. Don't wait until a few days before the due date to start. And make sure you have read the
+textbook thoroughly before starting.
+
+
+16.5     Intangibles
+
+This is not "CHEM 1A-style grading," calculated purely by formula, in which falling 0.5% below the cutoff
+point for an A results in a grade of B. The grade as determined above is just a lower bound. I can and often
+do use intangibles to increase your grade above that that the formula in Section 16 would give. I would
+estimate this occurs in 20-25% of all the course grades I assign.
+Extra Credit counts, of course. Also, I have an "all's well that ends well" view; that a record of marked
+improvement near the end of the course will be given very positive consideration, as it indicates insight into
+how all the course concepts integrate with each other.
+Negatives can be an obstacle. Those who miss quizzes (except for medical or similar reasons) will probably
+not receive the benefit of such intangibles. Again, though, no one will be given a grade below what the rules
+of the course provide.
+Exceptionally good work on the final Exam may be rewarded in terms of increasing its weight in your course
+grade.
+
+
+16.5.1    Back Up Your Files Frequently!
+
+Accidental deletion or destruction of your Homework files will generally not be grounds for extending
+the due date.
+
+
+16.6     Accuracy of Records
+
+At the end of the quarter, it will be your responsibility to make sure that the TA's records are correct as to
+your Homework scores.
+
+
+
+
+                                                     16
+17      I Do Care!
+
+I wish to emphasize that I care very much that you succeed in this course, and I look forward to getting to
+know all of you.
+
+
+A       Programming Issues
+
+A.1     Style
+
+Though it is not much of an issue in this class, I want to mention programming style.
+Good programming "style"--good indenting, meaningful variable names, helpful comments--is ex-
+tremely important. But it's not important for GRADING purposes; it's important for YOU¿ You will not
+be graded on style, but it is crucial for communications purposes. For example, suppose you are having
+trouble getting your program to work and you e-mail it to me for help. If I can't read it, I won't be able to
+help you.
+Note that this means that you write your program in good style from the beginning. Do NOT insert inden-
+tation, comments, etc. only when you are finished with the program and ready to turn it in.
+The same points apply to top-down (i.e. modular) programming. Do this not because it is required for
+grading (it isn't), but instead because it will make it easier for YOU, i.e. make it easier for you to write and
+debug your program, and easier for me to read if you ask me for help.
+By the way, speaking of programming style: You may have been taught that global variables are "evil,"
+to be avoided like The Plague. That is far too extreme an attitude, and the reasoning used doesn't make
+much sense. Moreover, in many cases in the real world, one must use globals. See a discussion on this at
+http://heather.cs.ucdavis.edu/~matloff/globals.html.
+
+
+A.2     Debugging
+
+A.2.1    Use a Debugging Tool!
+
+You will help yourself greatly--both in this course and in all courses in which you do programming--by
+making good use of a debugging tool, such as GDB, DDD, Eclipse or whatever.
+Make sure you understand the content of the first chapter of my book on debugging, available online at
+http://nostarch.com/debugging.htm. Even though it is for C/C++ and you may be using a dif-
+ferent language, the principles are the same. That chapter explains the strategy you should use in debugging.
+Do yourself a big favor: Get good at using debugging tools, both in this class and in others, and you will
+reap big benefits.
+When you seek help from me or the TA, the first thing we will ask you is to show us your
+debugging tool output. Even if you are using a GUI tool, for this purpose send us the output
+of a text-based on. Make SURE you use the Linux script command to record your session.
+
+
+
+
+                                                      17
+
