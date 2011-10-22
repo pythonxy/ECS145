@@ -1,7 +1,11 @@
 import curses
+import string
 import Exc
-from document import *
-import sys
+from logger import *
+
+
+log = Logger("uilog.txt")
+
 
 class Cursor:
 	
@@ -51,7 +55,10 @@ class Pad:
 		(self.scrollY, self.scrollX) = scrollLocation
 		(self.boxY, self.boxX) = (sum(pair) for pair in zip(boxSize, boxLocation))
 
-		self.pad = curses.newpad(1000, 10000)
+		self.pad = curses.newpad(2000, 2000)
+		self.topLine = 0
+
+		self.setText("")
 
 		self.minY = self.boxLocY
 
@@ -79,8 +86,6 @@ class Pad:
 
 		self.scrollY, self.scrollX = 0, 0
 
-		self.cursor = Cursor(0, 0, (self.boxLocY, self.boxLocX))
-
 		self.refresh()
 
 	def handleKey(self, key):
@@ -97,7 +102,7 @@ class Pad:
 
 	def checkBounds(self, y, x):
 		if y + self.scrollY > self.maxY:
-			self.cursor.setY(0)
+			self.cursor.setY(self.boxLocY)
 			raise Exc.PageDown() #next page!
 
 		if y < self.minY and self.scrollY == 0:
@@ -132,6 +137,17 @@ class Pad:
 			self.cursor.moveX(1)
 
 
+	def insertLine(self, line):
+		self.pad.insstr(self.topLine, 0, line)
+		if self.topLine > self.boxY:
+			self.scrollY += 1
+			self.cursor.setY(self.boxLocY)
+		if self.topLine > len(self.text):
+			self.maxY += 1
+		self.topLine += 1
+
+
+
 	def refresh(self):
 		self.pad.refresh(self.scrollY, self.scrollX, self.boxLocY, self.boxLocX, self.boxY, self.boxX)
 
@@ -147,17 +163,28 @@ class Window:
 		
 		self.setDimensions()		
 		self.curWord = None
-		self.displayPage = 1
-		self.indexPage = -1 
-
-
+		self.bidChars = []
+		self.bidString = ""
 
 		self.topPad = Pad((0, 0), (0, 0), (self.center - 1, self.width))
+		
 		self.bottomPad = Pad((self.center + 1, 0), (0, 0), (self.center - 1, self.width))
-		self.topPadActive = True
+		self.bottomPad.cursor.moveY(1)
+		self.bottomMessage = ""
+
+		self.topText = ""
+		self.addMessage("Welcome to AuctionProLitester.ly")
+		self.addMessage("Fuck this")
+
+		self.bottomPad.setText(self.bottomMessage + "\n" + "".join(self.bidChars))
+
+		log.write("bottom cursor at: %d, %d" % self.bottomPad.cursor.getAbsPosition())
+
+		self.topPadActive = False
 		self.refresh();
 
-	def highlightWord(self):
+
+	def highlightWord(self):  #NEEDS ADJUSTING- NO INDEX (POSSIBLY USE CLIENT NAME?)
 		if self.curWord != None:
 			
 			# highlight all instances of the words on the indexPage
@@ -169,95 +196,58 @@ class Window:
 				self.topPad.chgat(beginY, beginX, endX - beginX, curses.A_REVERSE)
 
 
-	
-	def sequenceInTopBounds(self, beginY, beginX, endY, endX):
-		return  beginY - self.topPad.scrollY >= 0 \
-				and  beginX - self.topPad.scrollX >= 0 \
-				and endY - self.topPad.scrollY < self.topPad.boxY \
-				and endX - self.topPad.scrollX < self.topPad.boxX
-
-
 	def handleKey(self, key):
-		if key == ord('o'):
+		if key == curses.KEY_MOUSE:
+			pass
+
+		elif key == curses.KEY_HOME:
 			self.topPadActive = not self.topPadActive
-			self.moved = False
 
-		elif key == ord('v') and (not self.topPadActive or self.curWord != None):
-			(y, x) = self.bottomPad.cursor.getRelPosition()
-			if y >= len(index.words):
-				return
-			# New word selected
-			if self.curWord != index.words[y] and self.topPadActive == False:
-			 	self.curWord = index.words[y]
-			 	self.indexPage = min(map(int, index.iwIndex[self.curWord].values())) # First page for current word				 
-				self.displayPage = self.indexPage
-				try:
-
-					self.indexPage = index.iwIndex[self.curWord][x]
-					self.displayPage = self.indexPage
-					self.topPad.setText(document.getPage(self.indexPage).text)
-				except KeyError:
-					self.topPad.setText(document.getPage(self.indexPage).text)
-			#Same word as before
-			else:
-				try:
-					tempPage = index.iwIndex[self.curWord][x]
-					if int(self.displayPage) == int(tempPage) or self.moved == False:
-						raise KeyError
-					self.indexPage = tempPage
-					self.displayPage = self.indexPage
-					self.topPad.setText(document.getPage(self.indexPage).text)
-				except KeyError:
-					nums = index.iwIndex[self.curWord].values()
-					nums = map(lambda x: int(x), nums)
-					nums = list(set(nums))
-					nums.sort()
-					i = nums.index(int(self.indexPage)) + 1
-					if i < len(nums):
-						self.indexPage = nums[i]
-						self.displayPage = self.indexPage 
-					else:
-						self.indexPage = nums[0]
-						self.displayPage = self.indexPage
-					self.topPad.setText(document.getPage(self.indexPage).text)
-			self.moved = False
+		elif key > 256:
+			pass
 
 		elif self.topPadActive == True:
 			try:
-				self.moved = True
 				self.topPad.handleKey(key)
 			except Exception as e:
-				if type(e) is Exc.PageDown:
-					try:
-						self.topPad.setText(document.nextPage().text)
-						self.displayPage += 1
-					except Exception:
-						pass
-				elif type(e) is Exc.PageUp:
-					try:
-						self.topPad.setText(document.previousPage().text)
-						self.displayPage -= 1
-					except Exception:
-						pass
+				pass
 
-		else: 
+		elif key == curses.KEY_ENTER or key == 10:
+			log.write("Pressed Enter")
+			self.bidString = "".join(self.bidChars)
+			self.bidChars = []
+			self.bottomPad.cursor.setY(1)
+			self.bottomPad.cursor.setX(0)
+			log.write("bidString = " + self.bidString)
+
+		elif key == curses.KEY_BACKSPACE:
 			try:
-				self.moved = True
-				self.bottomPad.handleKey(key)
-			except (Exc.PageUp, Exc.PageDown):
-				pass	
-	
+				self.bidChars.pop()
+				self.bottomPad.cursor.moveX(-1)
+			except IndexError:
+				pass
+
+		elif chr(key).isalnum() or key == ord(" "):
+			log.write("Pressed " + chr(key))
+			self.bidChars.append(chr(key))
+			self.bottomPad.cursor.moveX(1)
+
+		else:
+			pass
+
 	def resize(self):
-
 		self.setDimensions()		
-		
 
-		topText = self.topPad.text
 		self.topPad = Pad((0, 0), (0, 0), (self.center - 1, self.width))
-		self.topPad.setText(topText)
+		lines = self.topText.split("\n")
+		self.topText = ""
+		
+		for line in lines:
+			self.addMessage(line)
 
 		bottomText = self.bottomPad.text
 		self.bottomPad = Pad((self.center + 1, 0), (0, 0), (self.center - 1, self.width))
+		self.bottomPad.cursor.moveY(1)
 		self.bottomPad.setText(bottomText)
 		
 
@@ -274,13 +264,16 @@ class Window:
 		if self.topPadActive == True:
 			self.window.move(self.topPad.cursor.absy, self.topPad.cursor.absx)
 		else: 
-			self.window.move(self.bottomPad.cursor.absy, self.bottomPad.cursor.absx)			
-		
-		if int(self.displayPage) == int(self.indexPage):
-			self.highlightWord()
-		self.bottomPad.refresh()
+			self.window.move(self.bottomPad.cursor.absy, self.bottomPad.cursor.absx)
+			self.bottomPad.setText(self.bottomMessage + "\n" + "".join(self.bidChars))
+
 		self.topPad.refresh()
 		self.window.refresh()
+
+	def addMessage(self, text):
+		self.topPad.insertLine(text)
+		self.topText += text + "\n"
+
 
 	def stop(self):
 		curses.echo()
@@ -288,62 +281,27 @@ class Window:
 		self.window.keypad(0)
 		curses.endwin()
 
-
-def YXtoByte(y, x, text):
-	lines = text.split('\n')
-	curByte = 0
-	i = 0
-	while i < y:
-		curByte += len(lines[i]) + 1
-		i += 1
-	curByte += x
-	return curByte
-
-def BytetoYX(theByte, text):
-	lines = text.split('\n')
-	curByte = theByte
-	i = -1
-	while curByte >= 0:
-		i+=1
-		curByte -= len(lines[i]) + 1
-	curByte += len(lines[i]) + 1
-	return (i, curByte)
+	def setBottomMessage(self, text):
+		self.bottomMessage = text
 
 def main():
 
 	window = Window()		
 	try:
-		window.topPad.setText(document.nextPage().text)
-		window.bottomPad.setText(index.writeOut())
+		window.setBottomMessage("Enter Bid:")
 		window.refresh()
 
-		key = ord('x')
+		key = ord("!")
+
 		while True:
 			if key == ord('q'):
 				break
 			window.handleKey(key)
 			window.refresh()
 			key = window.window.getch()
-
 		
 	finally:
 		window.stop()
-
-SysGlobals.pdfname = sys.argv[1]
-SysGlobals.indexfilename = sys.argv[2]
-SysGlobals.wordfilename = ""
-
-if len(sys.argv) > 3:
-	SysGlobals.wordfilename = sys.argv[3]
-
-document = Document(SysGlobals.pdfname)
-index = None
-
-if len(sys.argv) > 3:
-	index = Index(document, SysGlobals.wordfilename)
-else:
-	index = Index(document, SysGlobals.indexfilename)
-index.indexIW()
 
 if __name__ == "__main__":
 	main()

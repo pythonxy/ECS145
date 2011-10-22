@@ -1,2 +1,8 @@
+<<<<<<< HEAD
 discussion/discuss
 chapter/chapters
+=======
+hello/world
+matloff
+me/I
+>>>>>>> acc728a4d262ae27f5a6d9e656e3526f862df03e
