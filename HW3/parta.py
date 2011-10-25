@@ -163,8 +163,8 @@ class Window:
 		
 		self.setDimensions()		
 		self.curWord = None
-		self.bidChars = []
-		self.bidString = ""
+		self.inputChars = []
+		self.inputString = ""
 
 		self.topPad = Pad((0, 0), (0, 0), (self.center - 1, self.width))
 		
@@ -176,7 +176,7 @@ class Window:
 		self.addMessage("Welcome to AuctionProLitester.ly")
 		self.addMessage("Fuck this")
 
-		self.bottomPad.setText(self.bottomMessage + "\n" + "".join(self.bidChars))
+		self.bottomPad.setText(self.bottomMessage + "\n" + "".join(self.inputChars))
 
 		log.write("bottom cursor at: %d, %d" % self.bottomPad.cursor.getAbsPosition())
 
@@ -214,22 +214,22 @@ class Window:
 
 		elif key == curses.KEY_ENTER or key == 10:
 			log.write("Pressed Enter")
-			self.bidString = "".join(self.bidChars)
-			self.bidChars = []
+			self.inputString = "".join(self.inputChars)
+			self.inputChars = []
 			self.bottomPad.cursor.setY(1)
 			self.bottomPad.cursor.setX(0)
-			log.write("bidString = " + self.bidString)
+			log.write("inputString = " + self.inputString)
 
 		elif key == curses.KEY_BACKSPACE:
 			try:
-				self.bidChars.pop()
+				self.inputChars.pop()
 				self.bottomPad.cursor.moveX(-1)
 			except IndexError:
 				pass
 
 		elif chr(key).isalnum() or key == ord(" "):
 			log.write("Pressed " + chr(key))
-			self.bidChars.append(chr(key))
+			self.inputChars.append(chr(key))
 			self.bottomPad.cursor.moveX(1)
 
 		else:
@@ -265,7 +265,7 @@ class Window:
 			self.window.move(self.topPad.cursor.absy, self.topPad.cursor.absx)
 		else: 
 			self.window.move(self.bottomPad.cursor.absy, self.bottomPad.cursor.absx)
-			self.bottomPad.setText(self.bottomMessage + "\n" + "".join(self.bidChars))
+			self.bottomPad.setText(self.bottomMessage + "\n" + "".join(self.inputChars))
 
 		self.topPad.refresh()
 		self.window.refresh()

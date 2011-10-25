@@ -1,44 +1,73 @@
 ''' Auctioneer is a dumb view; AuctionServer is the controller, also containing
 the model, for it'''
 
-import Window
+from parta import *
+import threading
+from logger import *
 
-class Auctioneer(Window):
+log = Logger("auctioneerlog.txt")
+
+class Auctioneer(Window, threading.Thread):
 	def __init__(self, clients):
-		super(Auctioneer, self).__init__() # initialize window
+		Window.__init__(self) # initialize window
+		threading.Thread.__init__(self)
 		self.clients = clients
 		self.curItem = 0
 		self.isOver = False
 		self.biddingOpen = False
-		self.__run()
-	
-	def __run(self):	
+		self.displayUI = True
+		self.auctionLock = threading.Lock()
+
+	def run(self):	
 		try:
 			self.setBottomMessage("Enter Message:")
 			self.refresh()
 
 			key = ord("!")
 
-			while True:
-				if key == ord('q'):
+			while self.displayUI:
+				if key == 27: # ESC
+					self.auctionLock.acquire()
 					self.isOver = True
+					self.auctionLock.release()
 					break
-				self.__handleKey(key)
+				if key == 14: # ctrl + n
+					log.write("Ctrl + n pressed!")
+					self.auctionLock.acquire()
+					self.biddingOpen = True
+					log.write("Bidding Open!")
+					self.auctionLock.release()
+				if key == 5: # ctrl + e
+					log.write("Ctrl + e pressed!")
+					self.auctionLock.acquire()
+					self.biddingOpen = False
+					self.postMessage("Bidding for current item has ended!")
+					log.write("Bidding closed!")
+					self.auctionLock.release()
+				else:
+					self.handleKey(key)
 				self.refresh()
 				key = self.window.getch()
-		finally:
+		except:
 			self.stop()
 	
-	def __handleKey(key): pass
-		# if auctioneer enters some special key, a new auction will begin, biddingOpen
-		# is set to false. prompting them to announce the new item
-		# should there be one
+	def handleKey(self, key):
+		Window.handleKey(self, key)
+		if self.inputString != "":
+			self.postMessage(self.inputString)
+			self.inputString = ""
+
+	def halt(self):
+		self.displayUI = False
+		self.stop()
 		
-	def __postMessage(message): pass
-		# this will be called upon KEY_ENTER to send all clients the message
-	def getCurItem:
-		return self.curItem
-	def isOver():
+	def postMessage(self, message):
+		for client in self.clients:
+			client.sendall(message)
+		self.addMessage(message)
+		Window.refresh(self)
+
+	def isAuctionOver(self):
 		return self.isOver
-	def biddingOpen():
+	def biddingIsOpen(self):
 		return self.biddingOpen

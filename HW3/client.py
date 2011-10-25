@@ -26,6 +26,7 @@ port = 64000
 server2.connect((host, port))
 
 raw_input("Reconnected socket")
+
 serverFile2 = server2.makefile("w", 0)
 serverFile2.writelines(["hello", "world", "hello"])
 server2.close()
