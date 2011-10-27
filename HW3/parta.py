@@ -203,8 +203,6 @@ class Window:
 		elif key == curses.KEY_HOME:
 			self.topPadActive = not self.topPadActive
 
-		elif key > 256:
-			pass
 
 		elif self.topPadActive == True:
 			try:
@@ -227,13 +225,13 @@ class Window:
 			except IndexError:
 				pass
 
-		elif chr(key).isalnum() or key == ord(" "):
-			log.write("Pressed " + chr(key))
-			self.inputChars.append(chr(key))
-			self.bottomPad.cursor.moveX(1)
-
 		else:
-			pass
+			try:
+				log.write("Pressed " + chr(key))
+				self.inputChars.append(chr(key))
+				self.bottomPad.cursor.moveX(1)
+			except:
+				pass
 
 	def resize(self):
 		self.setDimensions()		

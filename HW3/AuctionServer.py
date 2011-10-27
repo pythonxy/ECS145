@@ -1,19 +1,21 @@
 import sys
-import os
 import traceback
 import socket
 from Auctioneer import *
 from select import select
 from random import choice
 from logger import *
-import traceback
-
+import subprocess, os
+import smtplib
+from email.mime.text import MIMEText
 
 log = Logger("serverlog.txt")
 
-kNumClients = 1
-kPort = 64000
-kByteMax = 100
+
+def getNumClients(filename):
+	clientList = open(filename, "r")
+	text = clientList.readlines()
+	return len(text) 
 
 def getEmail(client):
 	global neer
@@ -27,6 +29,7 @@ def reject(client):
 def postBid(bid, bidder):
 	global neer
 	global clients
+	global curBid
 	curBid = int(bid)
 	neer.postMessage(clients[bidder] + ' ' + bid)
 
@@ -36,7 +39,25 @@ def announceWinner(item, price, winner):
 	announcement = 'Client ' + clients[winner] + ' won item ' + str(item) + ' at price ' + str(price)
 	neer.postMessage(announcement)
 
-def emailWinners(winners): pass
+def emailWinners(winners, prices):
+	s = smtplib.SMTP("smtp.gmail.com", 587)
+	for name in winners.keys():
+		bill = "Congratulations, you won: "
+		items = []
+		for item in winners[name]:
+			items.append(str(item) + " " + str(prices[item]))
+		body = bill + "\n" + "\n".join(items)
+
+		msg = MIMEText(body)
+		msg["Subject"] = "Your auction results"
+		msg["From"] = "ecsmailserver145@gmail.com"
+		msg["To"] = name
+		s.ehlo()
+		s.starttls()
+		s.login("ecsmailserver145", "moneymoneymoney")
+		s.sendmail("ecsmailserver145@gmail.com", [name], msg.as_string())
+	s.quit()
+
 
 def parseBid(bidStr):
 	(item, bid) = bidStr.split(" ")
@@ -54,6 +75,12 @@ def checkBid(bidPair):
 		return False
 	return True
 
+
+
+kNumClients = getNumClients(sys.argv[1])
+kPort = int(sys.argv[2])
+kByteMax = 100
+
 neer = None
 clients = None
 # set up and initialize listening socket
@@ -66,6 +93,7 @@ try:
 	clients = {}
 	for i in range(kNumClients):
 		(client, addr) = listener.accept()
+
 		clients[client] = getEmail(client)
 		client.setblocking(0)
 
@@ -73,7 +101,6 @@ try:
 	# launch auctioneer window
 	log.write("Spawning Auctioneer")
 	neer = Auctioneer(clients.keys())
-	neer.start()
 	log.write("Auctioneer started")
 
 	# winner variables initialization
@@ -81,32 +108,26 @@ try:
 	winners = dict.fromkeys(clients.values(), []) # takes the form email:list of itemNums
 	winPrices = {} # takes the form itemNum:winning bid
 
-	# while the auctioneer wants to hold the auction
 
-	neer.auctionLock.acquire()
 	curItem = 0
 
+	# while the auctioneer wants to hold the auction
 	while not neer.isAuctionOver():
-		try:
-			neer.auctionLock.release()
-		except Exception:
-			pass
+		neer.run()
 		winner = bidder = None
 		bid = ''
 		curBid = 0
 
 		# while we have clients
-		neer.auctionLock.acquire()
 		loopItem = -1
 		while neer.biddingIsOpen():
-			neer.auctionLock.release()
+			neer.run()
 
 			if loopItem != curItem:
 				neer.postMessage("Now bidding on item: " + str(curItem))
 				loopItem = curItem
 
-			readReady, writeReady, inError = select(clients.keys(), [], [], 1)
-			log.write("after select")
+			readReady, writeReady, inError = select(clients.keys(), [], [], 0)
 
 			# get bids from all clients
 			bidPairs = []
@@ -119,23 +140,23 @@ try:
 				validBids = filter(checkBid, bidPairs)
 				if validBids:
 					(bidder, bidStr) = choice(validBids)
-					readReady.remove(bidder)
 
 					log.write("Current high bidder " + str(clients[bidder]))
 
 					# post the bidder's bid to screens
 					(item, bid) = parseBid(bidStr) 
-					postBid(bid, bidder)
 
+					neer.run()
+					if neer.biddingIsOpen() and not neer.isAuctionOver():
+						postBid(bid, bidder)
+						readReady.remove(bidder)
+					else:
+						bidder = None
+						
 				# inform others that they weren't selected
 				map(reject, readReady)
-				
-			neer.auctionLock.acquire()
-		try:
-			neer.auctionLock.release()
-		except:
-			pass
-
+		#End bidding round
+						
 		if bidder:
 			winner = bidder
 			winners[ clients[bidder] ].append(curItem)
@@ -144,23 +165,21 @@ try:
 			
 			announceWinner(curItem, bid, winner)
 			curItem += 1
+	#End entire auction
 
-		neer.auctionLock.acquire()
 	# email all the winners
-	emailWinners(winners, winPrices)
+	log.write(str(winPrices))
+	if winPrices:
+		emailWinners(winners, winPrices)
 
-	try:
-		neer.auctionLock.release()
-	except:
-		pass
 	neer.postMessage("That's all for today!")
 
 except:
 	log.write("Hit an exception")
 	traceback.print_exc(file = open("serverexception.txt", 'a'))
 finally:
-	if neer != None:
-		neer.displayUI = False
+	neer.stop()
 	for client in clients.keys():
 		client.close()
+	listener.shutdown(socket.SHUT_RD)
 	listener.close()
