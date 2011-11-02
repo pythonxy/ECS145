@@ -174,7 +174,6 @@ class Window:
 
 		self.topText = ""
 		self.addMessage("Welcome to AuctionProLitester.ly")
-		self.addMessage("Fuck this")
 
 		self.bottomPad.setText(self.bottomMessage + "\n" + "".join(self.inputChars))
 

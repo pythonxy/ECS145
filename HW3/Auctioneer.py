@@ -2,7 +2,6 @@
 the model, for it'''
 
 from parta import *
-import threading
 from logger import *
 
 log = Logger("auctioneerlog.txt")
