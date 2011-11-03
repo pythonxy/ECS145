@@ -5,12 +5,15 @@ import random
 
 curJob = 0
 avgList = []
-ct = 0.1
-rt = .1
-mean_kv = 2.0
-max_req = 2
-mean_arriv = 2.0
-size = 100
+
+# python cloudsim.py cloud_size mean_interarrvl max_req mean_kv map_mid red_mid
+
+size = int(sys.argv[1])
+mean_arriv = float(sys.argv[2])
+max_req = int(sys.argv[3])
+mean_kv = float(sys.argv[4])
+ct = float(sys.argv[5])
+rt = float(sys.argv[6])
 
 class Cloud(Process):
 	global size
@@ -48,12 +51,13 @@ class UserJob(Process):
 		self.totalPairs = self.getInputPairs()
 		self.numPairs =  self.totalPairs / (self.numNodes-1) 
 
-		print "Pairs per node:", self.numPairs
+#		print "Job", curJob, "map nodes:", self.numNodes -1
+#		print "Job", curJob, ", Pairs per node:", self.numPairs
 
 	def Run(self):
 		global avgList
 
-		print "Assigned ", self.numNodes - 1, " map nodes to job", str(curJob)
+#		print "Assigned ", self.numNodes - 1, " map nodes to job", str(curJob)
 		for i in range(self.numNodes-1):
 			mnode = MapNode(self.numPairs, self)
 			activate(mnode, mnode.Run())
@@ -63,23 +67,28 @@ class UserJob(Process):
 		activate(self.rnode, self.rnode.Run())
 		self.nodes -=1
 
-		print "nodes = ", self.nodes, "numnodes =", self.numNodes
+#		print "nodes = ", self.nodes, "numnodes =", self.numNodes
 		while True:
 			if self.nodes == self.numNodes:
-				Cloud.availableNodes += self.numNodes
-				avgList.append(size - Cloud.availableNodes)
+				Cloud.availableNodes += 1
+				busyNodes = 0
+				for job in Cloud.activeJobs:
+					busyNodes += (job.numNodes - job.nodes)
+
+				avgList.append(busyNodes)
 				Cloud.activeJobs.remove(self)
 				break
 			else:
-				print "Sleeping job", self.name
+#				print "Sleeping job", self.name
 				yield passivate, self
-		print "Ending job", self.name
+#		print "Ending job", self.name
 
 	def getInputPairs(self):
 		''' Gives the number of input pairs per map node '''
-		numPairs = math.ceil(self.geomvariate()*(self.numNodes - 1))
+		temp = self.geomvariate() / float((self.numNodes - 1))
+		numPairs = math.ceil(temp) * (self.numNodes - 1)
 		
-		print "Total number of input pairs:", numPairs
+#		print "Total number of input pairs:", numPairs
 
 		return int(numPairs)
 
@@ -89,6 +98,7 @@ class UserJob(Process):
 		n = 1
 		while 1:
 			if random.uniform(0,1) < q: 
+#				print "Job", curJob, "raw input pairs:", n
 				return n
 			n += 1
 
@@ -107,20 +117,21 @@ class MapNode(Process):
 
 	
 	def Run(self):
-		print "Requested a map node from", self.job.name, "with", self.numPairs, "pairs"
+#		print "Requested a map node from", self.job.name, "with", self.numPairs, "pairs"
 
 
 		while len(self.workList) != 0:
 			pair = self.workList.pop(0)
-			print "Processing work item, completion time = ", pair, "Job number", self.job.name
+#			print "Processing work item, completion time = ", pair, "Job number", self.job.name
 			yield hold, self, pair
 			self.job.rnode.workList.append(pair)
 			if self.job.rnode.passive():
 
 				reactivate(self.job.rnode)
-		print "updating nodes from map"
+#		print "updating nodes from map"
+		Cloud.availableNodes += 1
 		self.job.nodes += 1
-		print "passivating map node from job", self.job.name
+#		print "passivating map node from job", self.job.name
 		yield passivate, self
 
 
@@ -136,11 +147,11 @@ class ReduceNode(Process):
 		global rt
 
 		while self.numPairs > 0:
-			print "output pairs remaining", self.numPairs, " from job", self.job.name
+#			print "output pairs remaining", self.numPairs, " from job", self.job.name
 			while len(self.workList) > 0:
-				print "Reduce:", str(self.workList)
+#				print "Reduce:", str(self.workList)
 				self.workList.pop(0)
-				print "Reducing pair from job number", self.job.name
+#				print "Reducing pair from job number", self.job.name
 				completionTime = random.uniform(.5*rt, 1.5*rt)
 				self.numPairs -= 1
 				yield hold, self, completionTime
@@ -148,11 +159,11 @@ class ReduceNode(Process):
 			if self.numPairs != 0:
 				yield passivate, self
 
-		print "updating nodes from reduce"
+#		print "updating nodes from reduce"
 		self.job.nodes += 1
 		
 		if self.job.passive():
-			print "reactivating job", self.job.name
+#			print "reactivating job", self.job.name
 			reactivate(self.job)
 		yield passivate, self
 
@@ -163,8 +174,8 @@ def main():
 	cloud = Cloud()
 
 	activate(cloud, cloud.Run())
-	simulate(until = 10000)
-	print "Total rejections:", Cloud.rejections / float(Cloud.requests)
+	simulate(until = 100000)
+	print "Proportion of rejections:", Cloud.rejections / float(Cloud.requests)
 	print "Avg busy nodes:", (float(sum(avgList))/float(len(avgList)))
 if __name__ == "__main__":
 	main()
