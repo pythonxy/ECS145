@@ -36,10 +36,6 @@ powersetHelper <- function(fullset) {
 
 
 compareSubsets <- function(term1, term2) {
-	#cat("Comparing ")
-	#print(term1)
-	#cat(" with ")
-	#print(term2)
 
 	if (!(length(term1) == length(term2))) {
 		return(FALSE)
@@ -74,7 +70,6 @@ subfreqs <- function(numsets) {
 	
 	# numps holds the powersets of the individual numsets
 	numps = mapply(powerset, numsets)
-	#print(numps)
 
 	for (subset in fullps) {
 		freqs[toString(subset)] <- 0
@@ -107,9 +102,7 @@ freqOp <- function(t, freqs, myOp) {
 	printList = list()
 
 	for (key in names(t)) {
-		print(key)
 		subsetOp = op(toInt(key))
-		print(subsetOp)
 		printList[[toString(subsetOp)]] <- 0
 	}
 
@@ -128,11 +121,6 @@ plot.subfreqs <- function(frobj, xaxisftn=sum) {
 	xaxis = as.numeric(names(printList))
 	yaxis = unlist(printList, use.names = FALSE)
 
-
-
-	for (i in 1:length(xaxis)) {
-#		cat("(", xaxis[[i]], ", ", yaxis[[i]], ")\n")
-	}
 
 	print(xaxis)
 	print(yaxis)
