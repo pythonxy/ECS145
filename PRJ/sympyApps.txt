@@ -1,0 +1,15 @@
+Applications of SymPy
+
+Outside of computer science, SymPy (and Computer Algebra Systems in general) has found a peculiar niche. Many practical applications of computational modeling rely on accurate numerical approximations of systems; SymPy doesn't excel at such tasks, as it has been designed for use in symbolic processing. However, SymPy's facilities are often a good fit for applications whose problems can be expressed in a closed, symbolic form.
+
+One such field is quantum mechanics. Recently, there has been a fair amount of work put into the development of a SymPy module that has extended its algebraic aptitude to the realm of symbolic quantum mechanics. Through this module, SymPy users are now able to simulate quantum computation. This is achieved through the use of Qubit objects (which roughly correspond to quantum states), and Gate objects (which act on these states). Such simulations are useful to researchers in quantum computing; while actual quantum computers are as yet unachievable, researchers wishing to experiment with quantum algorithms would be well served by such simulations. (Cugini, June 2011)
+
+SymPy has been used in another interesting application to quantum computing: programmatic simplification of quantum circuits. Without delving too deeply in the math, there is a quantum mechanical analogue to classical boolean logic gates. These operations on classical bits can sometimes be mirrored using "rotation-like operations in Hilbert space" on qubits (Curry, June 2011). This forms the theoretical basis for quantum computation.
+
+Much like current logical circuits, it is important to find methods of creating efficient quantum circuits. This means minimizing the number of gates needed to implement a given logical expression. Work to create rules for systematically eliminating redundancies in quantum circuits has been undertaken, using SymPy's symbolic processing to derive such rules. (Curry, June 2011)
+
+
+
+- SymPy quantum module (Addison Cugini, June 2011, http://digitalcommons.calpoly.edu/cgi/viewcontent.cgi?article=1038&context=physsp)
+
+- Quantum circuit simplification (Matt Curry, June 2011, http://digitalcommons.calpoly.edu/cgi/viewcontent.cgi?article=1039&context=physsp)

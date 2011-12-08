@@ -21,10 +21,10 @@ Accessing elements of a matrix also utilizes features of Python. In particular, 
 
 Finally, SymPy implements several Python operators to create transparent matrix operations. To multiply two matrices, a user would simply apply the familiar "*" operator. However, SymPy internally achieves this by implementing Python's "__mul__" and "__rmul__" operators. This faithfully carries out matrix multiplication:
 
-		In [4]: A = Matrix(1, 2, lambda i, j: (i+3)*j)
+		In [4]: A = Matrix(2, 2, lambda i, j: (i+3)*j)
 		In [5]: B = Matrix(1, 2, lambda i, j: (i+3))
-		In [6]: A*B
-		Out [6]: [0, 15]
+		In [6]: B*A
+		Out [6]: [0, 21]
 
 If the user tried to compute "A*B", the operation would return an error due to the size mismatch between the matrices.
 
