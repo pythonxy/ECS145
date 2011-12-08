@@ -9,6 +9,14 @@ Manipulating mathematical equations in symbolic form is rarely a built-in genera
 \section*{Features}
 SymPy is both written and interfaced with entirely in Python (although, according to their webpage, in the future they will supply a C-written core as an option). It's feature list reads as you would expect a computer algebra system's (CAS) feature list to read. It provides things as basic as algebraic simplification and expansion, complex numbers, differentiation, integration, algebraic and differential equation solvers, etc. It also contains modules for algebraic geometry, arbitrary precision floating point arithmetic, statistics, matrices, and quantum physics, among others. Printing, and plotting in both two and three dimensions, is supported as well. SymPy furnishes the user with all the standard fare of a paid CAS, but for free in a well-known, non-proprietary language for easy extensibility and modification.\\\\
  SymPy's features have even found their way into a more elaborate open source CAS, Sage, which is similarly interfaced with via Python (however, unlike SymPy, Sage has components written in several other languages). According to Sage's Wikipedia entry, SymPy's library is used in it's implementation of calculus tools.
- \section*{Innards}
- \subsection*{\small High Level}
+ \section*{Why Python? Wow, Python!}
+ BS BS BS
+ Exec in abc.py code generation, etc., etc
+ \section*{The SymPy Core Package}
+Naturally, the base classes for SymPy are fairly complex. But that affords an architecture that is straightforward yet powerful. Scratching a few surfaces is enough to get started using and extending SymPy.\\\\
+The base class of all objects in SymPy is the Basic class. The Basic class encapsulates all functionality "basic" to all symbols. This includes defining things like comparisons between generic symbols, pattern queries, etc.; providing a uniform interface for accessing symbol object hashes, symbol atoms in expressions, and type info (like communitivity and positivity); and, insuring all symbols are immutable (more on that later). The Basic class is important because it's the parent to the Symbol class, which is the primary construct users interact with.\\\\
+To create a symbol in SymPy, one 
+...  \textasteriskcentered Symbol call, a few operations on the symbols, which roll into a discussion of how those operations' classes look internally \textasteriskcentered
+\subsection*{\small Python in sympy.core}
+\textasteriskcentered will describe Python centric syntax enabling some of the above mentioned functionality... things like \_\_slots\_\_ = [] for immutability, functions as first class objs, etc\textasteriskcentered
 \end{document}
