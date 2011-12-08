@@ -1,15 +1,25 @@
 Possible outline- Thoughts?
 
+I. Introduction and Motivation for SymPy
 
-I. Intro/Motivation for SymPy
-
-II. SymPy Overview/Tutorial
+II. Core Features and Usage in SymPy
 	- Brief outline of core features and description of current modules
 		- Symbolic computation
 		- Handful of obviously useful modules (matrices, integration, differentiation, stats, whatever)
 		- Pretty printing and plotting
-		 
-	- Interesting Python features used in SymPy implementation
+	 
+	- Interesting Python features used in SymPy implementation (could be integrated in above sections)
 
-III. SymPy Applications
-	- Who is using SymPy for interesting projects? I feel like Matloff would love to hear about real-world usage of the library
+Here is what I propose for II:
+	- Symbolic Computation
+		- Features and Usage
+		- Implementation
+	- Printing and Plotting
+		- Features and Usage
+		- Output Formats Supported
+		- Implementation
+End proposal
+
+III. SymPy in Real World Applications
+	- Who is using SymPy for interesting projects?
+	(I feel like Matloff would love to hear about real-world usage of the library.)
