@@ -1,0 +1,31 @@
+SymPy leans heavily on Python features in its implementation. The result of this is clean, readable code. This in turn promotes one of the main goals of SymPy: extensibility.
+The Matrix module of SymPy provides showcases several Python-specific features in action. For example, SymPy leverages Python's functional features to allow users to create matrices using "rules", which are essentially functions that populate the new matrix with values. The tidiness of this approach can be seen below:
+
+        In [1]: Matrix(2, 2, lambda i,j: (i+2)*j )
+        Out [1]: 
+		⎡0  2⎤
+		⎢    ⎥
+		⎣0  3⎦
+
+Accessing elements of a matrix also utilizes features of Python. In particular, SymPy matrices overload the braces operator to allow the user to intuitively address both individual elements or even entire submatrices. This is achieved by taking advantage of the slices operator built into Python:
+
+        In [1]: A = Matrix(2, 2, lambda i,j: (i+2)*j )
+        In [2]: A[0, :]
+        Out [2]: [0, 2]
+        In [3]: A[:, 1]
+        Out [3]: 
+        ⎡2⎤
+		⎢ ⎥
+		⎣3⎦
+
+
+Finally, SymPy implements several Python operators to create transparent matrix operations. To multiply two matrices, a user would simply apply the familiar "*" operator. However, SymPy internally achieves this by implementing Python's "__mul__" and "__rmul__" operators. This faithfully carries out matrix multiplication:
+
+		In [4]: A = Matrix(1, 2, lambda i, j: (i+3)*j)
+		In [5]: B = Matrix(1, 2, lambda i, j: (i+3))
+		In [6]: A*B
+		Out [6]: [0, 15]
+
+If the user tried to compute "A*B", the operation would return an error due to the size mismatch between the matrices.
+
+	  
