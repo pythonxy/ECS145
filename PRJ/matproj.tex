@@ -14,9 +14,49 @@ SymPy is both written and interfaced with entirely in Python (although, accordin
  Exec in abc.py code generation, etc., etc
  \section*{The SymPy Core Package}
 Naturally, the base classes for SymPy are fairly complex. But that affords an architecture that is straightforward yet powerful. Scratching a few surfaces is enough to get started using and extending SymPy.\\\\
-The base class of all objects in SymPy is the Basic class. The Basic class encapsulates all functionality "basic" to all symbols. This includes defining things like comparisons between generic symbols, pattern queries, etc.; providing a uniform interface for accessing symbol object hashes, symbol atoms in expressions, and type info (like communitivity and positivity); and, insuring all symbols are immutable (more on that later). The Basic class is important because it's the parent to the Symbol class, which is the primary construct users interact with.\\\\
-To create a symbol in SymPy, one 
-...  \textasteriskcentered Symbol call, a few operations on the symbols, which roll into a discussion of how those operations' classes look internally \textasteriskcentered
-\subsection*{\small Python in sympy.core}
-\textasteriskcentered will describe Python centric syntax enabling some of the above mentioned functionality... things like \_\_slots\_\_ = [] for immutability, functions as first class objs, etc\textasteriskcentered
+The base class of all objects in SymPy, resident to the core package, is the Basic class. The Basic class encapsulates all functionality "basic" to all symbols. This includes defining things like comparisons between generic symbol trees, pattern queries, etc.; providing a uniform interface for accessing symbol object hashes, symbol atoms in expressions, and type info (like communitivity and positivity); and, insuring all symbols are immutable (more on that later). The Basic class is important because it's the parent to the Symbol class, which is the primary construct users interact with.
+\subsection*{\small Symbol Objects}
+To create a symbol in SymPy, one simply pulls up Python in interactive mode, imports the Symbol class from sympy and begins creating symbols as in the following:
+\begin{verbatim}
+>>> from sympy import Symbol
+>>> a = Symbol('a')
+>>> b = Symbol('b')
+>>> c = a*b
+>>> c
+a*b
+\end{verbatim}
+What's shown above is pretty straightforward, but it demonstrates the simplicity of creating symbols then nesting them in an expression object of type Mul. Mul itself behaves much like a Symbol because it is similarly a descendant of Basic.
+\begin{verbatim}
+ |  Method resolution order:
+ |      Mul
+ |      sympy.core.operations.AssocOp
+ |      sympy.core.expr.Expr
+ |      sympy.core.basic.Basic
+ |      sympy.core.assumptions.AssumeMeths
+ |      sympy.core.evalf.EvalfMixin
+ |      __builtin__.object
+\end{verbatim}
+This occurs because Symbol descends from a class that overloads the asterisk, and all other arithmetic operators, to deal with Symbols (synonymously in the architecture, Atoms and Exprs). Symbolic compositions like this extend any class derived from Basic, so to enable users to define their own functions. A few more complicated uses/compositions are shown below, but many more exist and behave just as intuitively.
+\begin{verbatim}
+>>> from sympy import *
+>>> from sympy.abc import x, a, b, c #creates Symbols for chars (more on this later)
+>>> integrate(x**2 * exp(x) * cos(x), x)
+x**2*exp(x)*sin(x)/2 + x**2*exp(x)*cos(x)/2 - x*exp(x)*sin(x) + exp(x)*sin(x)/2 
+- exp(x)*cos(x)/2
+>>> (pi*x**2 + x/3).evalf()
+3.14159265358979*x**2 + 0.333333333333333*x
+>>> x = Point(0,0)
+>>> y = Point(c,0)
+>>> z = Point(a,b)
+>>> t = Triangle(x,y,z)
+>>> t.area
+b*c/2
+>>> x = Symbol('x') #define x to be a symbol again
+>>> limit(1/x, x, oo)
+0
+\end{verbatim}
+The above should suffice for a top level understanding, but much else that exists in the core facilitates the movement, efficiency (there's a Symbol cache!), and representation of Symbols within SymPy.
+\section*{Python in sympy.core}
+Python is used in some interesting ways to acheive the core's functionality. 
+\textasteriskcentered will describe Python centric syntax enabling some of the above mentioned functionality... things like \_\_slots\_\_ = [] and \_\_new\_\_() for immutability, treatment of objects as functions, etc\textasteriskcentered
 \end{document}
