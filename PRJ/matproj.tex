@@ -1,4 +1,5 @@
 \documentclass[11pt,a4paper,oneside]{report}
+\usepackage{moreverb}
 \begin{document}
 \title{SymPy, A Python Library for Symbolic Mathematics}
 \author{Jason Hsu, Keyan Kousha, Damian Rooney}
@@ -57,6 +58,17 @@ b*c/2
 \end{verbatim}
 The above should suffice for a top level understanding, but much else that exists in the core facilitates the movement, efficiency (there's a Symbol cache!), and representation of Symbols within SymPy.
 \section*{Python in sympy.core}
-Python is used in some interesting ways to acheive the core's functionality. 
-\textasteriskcentered will describe Python centric syntax enabling some of the above mentioned functionality... things like \_\_slots\_\_ = [] and \_\_new\_\_() for immutability, treatment of objects as functions, etc\textasteriskcentered
+Python is used in some interesting ways to acheive the core's functionality. We'll dicuss a small number of them briefly. One interesting way is keeping Basic and derived classes immutable and lightweight. This is done by interfering in the instance creation process.
+\begin{verbatim}
+    __slots__ = ['_mhash',              # hash value
+                 '_args',               # arguments
+                 '_assume_type_keys',   # assumptions typeinfo keys
+                ]
+\end{verbatim}
+The above creates an immutable class by preventing the creation of the normal python dictionary, which would be extendable by users and larger than this list. (Expression immutability, as opposed to immutable in the sense of a tuple, is kept by convention: always returning an "expression immutable" copy on mutate operations.) \\\\
+Something else seen in this class Basic, and the majority of core classes, is the definition of \_\_new\_\_() which returns an instance of the class. Unlike \_\_init\_\_(), \_\_new\_\_() allows customization of the instance creation itself, not just initialization. One example of this is used to cache Symbol objects. The following is a return statement from Symbol's \_\_new\_\_().
+\begin{verbatim}
+return Symbol.__xnew_cached_(cls, name, commutative, **assumptions)
+\end{verbatim}
+This call, essentially, returns a cached Symbol if it exists or creates a new Symbol should it not already exist (because all objects subclassing Basic should be immutable, this operates as intended). Caches aren't unique to Python; however, the cache defines a decorator that allows any function call to be cached.
 \end{document}
