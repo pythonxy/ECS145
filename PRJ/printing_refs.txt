@@ -1,0 +1,8 @@
+
+1. http://en.wikipedia.org/wiki/SymPy#Plotting
+
+2. http://docs.sympy.org/0.7.1/tutorial.html#printing
+
+3. http://docs.sympy.org/0.7.1/modules/printing.html
+
+4. http://docs.sympy.org/0.7.1/modules/plotting.html

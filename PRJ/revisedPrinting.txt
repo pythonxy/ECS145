@@ -1,0 +1,92 @@
+Formatting & Printing in SymPy
+
+Features and Usage
+
+While SymPy’s symbolic math modules provide a fertile platform for a wide range of computational applications, the printing and formatting modules enable the results of those applications to be formatted correctly and shared easily. This is a very powerful feature facilitating mathematicians, scientists, and engineers to express their calculations in a human-readable form.
+
+SymPy defines special terminology when it comes to printing and formatting. Foremost, printing an expression is not synonymous–in the traditional sense–with printing to paper or the screen ; instead, it means that the expression is formatted and returned as a standard Python string. For the more conventional printing, SymPy offers a preview mode that outputs the expression as a rendered image, ready for a research report or presentation.
+
+Printing relies on the polymorphic nature of Python to produce the correct output for any SymPy expression. To the end user, printing an expression involves just invoking the standard print function of Python. No special processing or compilation beforehand is required. The ease of use is illustrated below:
+
+>>> from sympy import Integral
+>>> from sympy.abc import x
+>>> print x**2
+x**2
+>>> print 1/x
+1/x
+>>> print Integral(x**2, x)
+Integral(x**2, x)
+
+Although unformatted plaintext is produced, a prettier representation can be achieved. In such cases, the pprint function of SymPy comes in handy. The following example demonstrates:
+
+>>> from sympy import Integral, pprint
+>>> from sympy.abc import x
+>>> pprint(x**2)
+ 2
+x
+>>> pprint(1/x)
+1
+-
+x
+>>> pprint(Integral(x**2, x))
+  /
+  |
+  |  2
+  | x  dx
+  |
+ /
+
+SymPy also offers rich features for plotting data, putting it on par with commercial software such as MatLab and Mathematica. Plotting is achieved through Pyglet (a cross-platform windowing and multimedia library for Python) and called be controlled by console commands in addition to the keyboard and mouse. 
+
+SymPy supports several coordinate modes and color functions for each plotted function. A coordinate mode can be specified directly or automatically; Cartesian and parametric plots are automatically handled, leaving polar, cylindrical, and spherical modes requiring explicit specification. Custom color functions can also be added to enhance the look of the plot. The color functions can be specified by a multistep color gradient or separate functions for each component: red, green, and blue.
+
+The following example demonstrates SymPy’s plotting functionality:
+
+>>> from sympy import symbols, Plot, cos
+>>> x,y = symbols('x y')
+>>> Plot(cos(x*3)*cos(y*5)-y)
+[0]: -y + cos(3*x)*cos(5*y), 'mode=cartesian'
+
+
+Figure 1: Output of plotting example
+
+Supported Outputs
+
+SymPy supports within its printing and formatting utilities a variety of output formats ranging from ASCII art to LaTeX and MathML. SymPy can also produce C and Fortran code as part of its printing and formatting capabilities. The C printer will try to use the standard C math libraries as much as possible. Of course, custom output formats can be implemented as well. Extending SymPy’s supported output formats will be discussed in the next section.
+
+>>> from sympy import Integral, latex
+>>> from sympy.abc import x
+>>> latex(x**2)
+x^{2}
+>>> latex(x**2, mode='inline')
+$x^{2}$
+>>> latex(x**2, mode='equation')
+\begin{equation}x^{2}\end{equation}
+>>> latex(x**2, mode='equation*')
+\begin{equation*}x^{2}\end{equation*}
+>>> latex(1/x)
+\frac{1}{x}
+>>> latex(Integral(x**2, x))
+\int x^{2}\,dx
+(a) LaTeX output
+
+>>> from sympy.printing.mathml import mathml
+>>> from sympy import Integral, latex
+>>> from sympy.abc import x
+>>> print mathml(x**2)
+<apply><power/><ci>x</ci><cn>2</cn></apply>
+>>> print mathml(1/x)
+<apply><power/><ci>x</ci><cn>-1</cn></apply>
+(b) MathML output
+
+Fortran
+>>> from sympy import *
+>>> x = symbols("x")
+>>> fcode(sqrt(1-x**2))
+'      sqrt(-x**2 + 1)'
+>>> fcode((3 + 4*I)/(1 - conjugate(x)))
+'      (cmplx(3,4))/(-conjg(x) + 1)'
+(c) Fortran output
+
+Figure 2: Examples of various output formats and their usage
+
