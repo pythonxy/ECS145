@@ -1,4 +1,5 @@
 \documentclass[11pt,a4paper,oneside]{report}
+\usepackage{hyperref}
 \usepackage{moreverb}
 \usepackage{graphicx}
 \begin{document}
@@ -9,11 +10,11 @@
 \section*{Introduction}
 Manipulating mathematical equations in symbolic form is rarely a built-in general programming language (GPL) feature. It's certainly not in today's popular programming languages. For mathematicians, this means learning a new domain specific language (DSL) to conduct such work, often barring its functionality from use in a more general context. Where integration between a DSL and a GPL is possible, it is often complicated, or ugly at best; in addition, studying or modifying the code base in these frequently proprietary languages isn't allowed; and features normally found in a GPL are an afterthought and require learning additional new syntax. Beyond the inconvenience, most popular languages in the symbolic math domain also have prohibitive costs (e.g. MatLab, Mathematica, etc.). It would be nice then to have symbolic math be a library to a GPL, written in a GPL, licenced like a GPL, with an implementation as transparent as a GPL's implementation. This is where SymPy, an open source Python library for symbolic math, enters.
 \section*{Features}
-SymPy is both written and interfaced with entirely in Python (although, according to their webpage, in the future they will supply a C-written core as an option). It's feature list reads as you would expect a computer algebra system's (CAS) feature list to read. It provides things as basic as algebraic simplification and expansion, complex numbers, differentiation, integration, algebraic and differential equation solvers, etc. It also contains modules for algebraic geometry, arbitrary precision floating point arithmetic, statistics, matrices, and quantum physics, among others. Printing, and plotting in both two and three dimensions, is supported as well. SymPy furnishes the user with all the standard fare of a paid CAS, but for free in a well-known, non-proprietary language for easy extensibility and modification.\\\\
+SymPy is both written and interfaced with entirely in Python, with no dependencies aside from Python and a few plotting libraries discussed later. (Aside: according to their webpage, in the future they will supply a C-written core as an option.) It's feature list reads as you would expect a computer algebra system's (CAS) feature list to read. It provides things as basic as algebraic simplification and expansion, complex numbers, differentiation, integration, algebraic and differential equation solvers, etc. It also contains modules for algebraic geometry, arbitrary precision floating point arithmetic, statistics, matrices, and quantum physics, among others. Printing, and plotting in both two and three dimensions, is supported as well. SymPy furnishes the user with all the standard fare of a paid CAS, but for free in a well-known, non-proprietary language for easy extensibility and modification.\\\\
  SymPy's features have even found their way into a more elaborate open source CAS, Sage, which is similarly interfaced with via Python (however, unlike SymPy, Sage has components written in several other languages). According to Sage's Wikipedia entry, SymPy's library is used in it's implementation of calculus tools.
- \section*{The SymPy Core Package}
+\section*{The SymPy Core Package}
 Naturally, the base classes for SymPy are fairly complex. But that affords an architecture that is straightforward yet powerful. Scratching a few surfaces is enough to get started using and extending SymPy.\\\\
-The base class of all objects in SymPy, resident to the core package, is the Basic class. The Basic class encapsulates all functionality "basic" to all symbols. This includes defining things like comparisons between generic symbol trees, pattern queries, etc.; providing a uniform interface for accessing symbol object hashes, symbol atoms in expressions, and type info (like communitivity and positivity); and, insuring all symbols are immutable (more on that later). The Basic class is important because it's the parent to the Symbol class, which is the primary construct users interact with.
+The base class of all objects in SymPy, resident to the core package, is the Basic class. The Basic class encapsulates all functionality "basic" to all symbols. This includes defining things like comparisons between generic symbol trees, pattern queries, etc.; providing a uniform interface for accessing symbol object hashes, symbol atoms in expressions, and type info (like communitivity and positivity); and, insuring all symbols are immutable after mutations (more on that later). The Basic class is important because it's the parent to the Symbol class, which is the primary construct users interact with.
 \subsection*{Symbol Objects}
 To create a symbol in SymPy, one simply pulls up Python in interactive mode, imports the Symbol class from sympy and begins creating symbols as in the following:
 \begin{verbatim}
@@ -24,7 +25,7 @@ To create a symbol in SymPy, one simply pulls up Python in interactive mode, imp
 >>> c
 a*b
 \end{verbatim}
-What's shown above is pretty straightforward, but it demonstrates the simplicity of creating symbols then nesting them in an expression object of type Mul. Mul itself behaves much like a Symbol because it is similarly a descendant of Basic.
+What's shown above is pretty straightforward, but it demonstrates the simplicity of creating symbols then nesting them in an expression object like that shown, type Mul. Mul itself behaves much like a Symbol because it is similarly a descendant of Basic.
 \begin{verbatim}
  |  Method resolution order:
  |      Mul
@@ -35,7 +36,7 @@ What's shown above is pretty straightforward, but it demonstrates the simplicity
  |      sympy.core.evalf.EvalfMixin
  |      __builtin__.object
 \end{verbatim}
-This occurs because Symbol descends from a class that overloads the asterisk, and all other arithmetic operators, to deal with Symbols (synonymously in the architecture, Atoms and Exprs). Symbolic compositions like this extend to any class derived from Basic, so to enable users to define their own functions. A few more complicated uses/compositions are shown below, but many more exist and behave just as intuitively.
+This nesting occurs because Symbol descends from a class that overloads the asterisk, and all other arithmetic operators, to deal with Symbols (synonymously in the architecture, Atoms and Exprs). Symbolic compositions like this extend to any class derived from Basic, so to enable users to define their own functions. A few more complicated uses/compositions are shown below, but many more exist and behave just as intuitively.
 \begin{verbatim}
 >>> from sympy import *
 >>> from sympy.abc import x, a, b, c #creates Symbols for chars (more on this later)
@@ -91,25 +92,24 @@ def __cacheit(func):
     	...
     return wrapper
 \end{verbatimtab}
-This allows the interpreter to maintain the special attributes of \_subs\_old\_new, and other decorated functions, when the function being called is actually its wrapper (special attributes here are those such as \_\_name\_\_ and \_\_doc\_\_, which are important for introspection).
+@wrap allows the interpreter to maintain the special attributes of \_subs\_old\_new, and other decorated functions, when the function being called is actually its wrapper (special attributes here are those such as \_\_name\_\_ and \_\_doc\_\_, which are important for introspection).
 \subsection*{Metaclasses}
 The last example that we'll cover on Python in SymPy's core, although are many, many more engaging uses, is metaclasses. Much like \_\_new\_\_ in Python intercepts instance creation of an object, metaclasses intercept creation of class objects. Everything in Python is an object, even ints, and so are classes.\\\\
- The class keyword internally creates an object for the specified there, and this is what metaclasses interfere with: how this class object is created. To interfere in this way, one simply defines the \_\_metaclass\_\_ variable in the class one wants to intevene in, and Python does the rest, calling the metaclass before the class object is created with the information about the original class object. The Basic class in sympy.core uses such a meta class. It's defined as simply as the following.
+ The class keyword internally creates an object for the specified identifier, and this is what metaclasses interfere with: how this class object is created. To interfere in this way, one simply defines the \_\_metaclass\_\_ variable in the class one wants to intevene in, and Python does the rest, calling the metaclass before the class object is created with the information about the original class object. The Basic class in sympy.core uses such a metaclass. It's defined as simply as the following.
 \begin{verbatim}
 __metaclass__ = BasicMeta
 \end{verbatim}
-Being the base class for all symbol objects, Basic has many duties. One of these duties is maintaining assumptions about symbols and consequences derived from such assumptions. Metaclasses are inherited when subclassing, so as far as we can tell (admittedly, BasicMeta uses a lot of magic), BasicMeta creates default assumptions and derives consequences of premises that a class derived from Basic might define. This is the common use of metaclasses, often occuring in Python API's: abstraction of low-level class maintaince or representation for class designers.\\\\
+Being the base class for all symbol objects, Basic has many duties, which metaclasses aid. One of these duties is maintaining assumptions about symbols and consequences derived from such assumptions. Metaclasses are inherited when subclassing, so as far as we can tell (admittedly, the BasicMeta metaclass uses a lot of "python magic"), BasicMeta creates default assumptions and derives consequences of premises that a class derived from Basic might define. This is the common use of metaclasses, often occuring in Python API's: abstraction of low-level class maintaince or representation for class designers.\\\\
 As said, this is only a survey of a few Python tools used in SymPy's core package. But it should be clear how much of Python is being leveraged to do very cool things in its lower levels.
 \section*{A SymPy Class Example}
-SymPy leans heavily on Python features in its implementation. The result of this is clean, readable code. This in turn promotes one of the main goals of SymPy: extensibility.
 \subsection*{Matrices}
-The Matrix module of SymPy provides showcases several Python-specific features in action. For example, SymPy leverages Python's functional features to allow users to create matrices using "rules", which are essentially functions that populate the new matrix with values. The tidiness of this approach can be seen below:
+The Matrix module of SymPy showcases several Python-specific features in action. For example, SymPy leverages Python's functional features to allow users to create matrices using "rules", which are essentially functions that populate the new matrix with values. The tidiness of this approach can be seen below:
 \begin{verbatimtab}
         In [1]: Matrix(2, 2, lambda i,j: (i+2)*j )
         Out [1]: 
-        ⎡0  2⎤
-        ⎢    ⎥
-        ⎣0  3⎦
+        [0  2]
+        |    |
+        [0  3]
 \end{verbatimtab}
 Accessing elements of a matrix also utilizes features of Python. In particular, SymPy matrices overload the braces operator to allow the user to intuitively address both individual elements or even entire submatrices. This is achieved by taking advantage of the slices operator built into Python:
 \begin{verbatimtab}
@@ -118,9 +118,9 @@ Accessing elements of a matrix also utilizes features of Python. In particular, 
         Out [2]: [0, 2]
         In [3]: A[:, 1]
         Out [3]: 
-        ⎡2⎤
-        ⎢ ⎥
-        ⎣3⎦
+        [2]
+        | |
+        [3]
 \end{verbatimtab}
 Finally, SymPy implements several Python operators to create transparent matrix operations. To multiply two matrices, a user would simply apply the familiar * operator. However, SymPy internally achieves this by implementing Python's \_\_mul\_\_ and \_\_rmul\_\_ operators. This faithfully carries out matrix multiplication:
 \begin{verbatimtab}
@@ -164,7 +164,7 @@ x
   |
  /
 \end{verbatimtab}
-SymPy also offers rich features for plotting data, putting it on par with commercial software such as MatLab and Mathematica. Plotting is achieved through Pyglet (a cross-platform windowing and multimedia library for Python) and called be controlled by console commands in addition to the keyboard and mouse.\\\\
+SymPy also offers rich features for plotting data, putting it on par with commercial software such as MatLab and Mathematica. Plotting is achieved through Pyglet (a cross-platform windowing and multimedia library for Python) and controlled by console commands in addition to the keyboard and mouse.\\\\
 SymPy supports several coordinate modes and color functions for each plotted function. A coordinate mode can be specified directly or automatically; Cartesian and parametric plots are automatically handled, leaving polar, cylindrical, and spherical modes requiring explicit specification. Custom color functions can also be added to enhance the look of the plot. The color functions can be specified by a multistep color gradient or separate functions for each component: red, green, and blue.\\\\
 The following example demonstrates SymPy’s plotting functionality:
 \begin{verbatimtab}
@@ -224,4 +224,20 @@ Outside of computer science, SymPy (and Computer Algebra Systems in general) has
 One such field is quantum mechanics. Recently, there has been a fair amount of work put into the development of a SymPy module that has extended its algebraic aptitude to the realm of symbolic quantum mechanics. Through this module, SymPy users are now able to simulate quantum computation. This is achieved through the use of Qubit objects (which roughly correspond to quantum states), and Gate objects (which act on these states). Such simulations are useful to researchers in quantum computing; while actual quantum computers are as yet unachievable, researchers wishing to experiment with quantum algorithms would be well served by such simulations. (Cugini, June 2011)\\\\
 SymPy has been used in another interesting application to quantum computing: programmatic simplification of quantum circuits. Without delving too deeply in the math, there is a quantum mechanical analogue to classical boolean logic gates. These operations on classical bits can sometimes be mirrored using "rotation-like operations in Hilbert space" on qubits (Curry, June 2011). This forms the theoretical basis for quantum computation.\\\\
 Much like current logical circuits, it is important to find methods of creating efficient quantum circuits. This means minimizing the number of gates needed to implement a given logical expression. Work to create rules for systematically eliminating redundancies in quantum circuits has been undertaken, using SymPy's symbolic processing to derive such rules. (Curry, June 2011)
+\begin{thebibliography}{9}
+
+\bibitem{add}
+  Addison Cugini,
+  \emph{SymPy quantum module}.
+   June 2011, 
+   \url{http://digitalcommons.calpoly.edu/cgi/viewcontent.cgi?article=1038&context=physsp},
+  June 2011.
+
+\bibitem{cur}
+  Matt Curry,
+  \emph{Quantum circuit simplification}.
+  \url{http://digitalcommons.calpoly.edu/cgi/viewcontent.cgi?article=1039&context=physsp},
+  June 2011.
+
+\end{thebibliography}
 \end{document}
