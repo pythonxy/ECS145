@@ -37,7 +37,7 @@ What's shown above is pretty straightforward, but it demonstrates the simplicity
  |      sympy.core.evalf.EvalfMixin
  |      __builtin__.object
 \end{verbatim}
-This occurs because Symbol descends from a class that overloads the asterisk, and all other arithmetic operators, to deal with Symbols (synonymously in the architecture, Atoms and Exprs). Symbolic compositions like this extend any class derived from Basic, so to enable users to define their own functions. A few more complicated uses/compositions are shown below, but many more exist and behave just as intuitively.
+This occurs because Symbol descends from a class that overloads the asterisk, and all other arithmetic operators, to deal with Symbols (synonymously in the architecture, Atoms and Exprs). Symbolic compositions like this extend to any class derived from Basic, so to enable users to define their own functions. A few more complicated uses/compositions are shown below, but many more exist and behave just as intuitively.
 \begin{verbatim}
 >>> from sympy import *
 >>> from sympy.abc import x, a, b, c #creates Symbols for chars (more on this later)
@@ -58,17 +58,48 @@ b*c/2
 \end{verbatim}
 The above should suffice for a top level understanding, but much else that exists in the core facilitates the movement, efficiency (there's a Symbol cache!), and representation of Symbols within SymPy.
 \section*{Python in sympy.core}
-Python is used in some interesting ways to acheive the core's functionality. We'll dicuss a small number of them briefly. One interesting way is keeping Basic and derived classes immutable and lightweight. This is done by interfering in the instance creation process.
+Python is used in some interesting ways to acheive the core's functionality. We'll dicuss a small number of them briefly.
+\subsection*{\small \_\_slots\_\_}
+ One interesting way is keeping Basic and derived classes immutable and lightweight. This is done by interfering in the instance creation process.
 \begin{verbatim}
     __slots__ = ['_mhash',              # hash value
                  '_args',               # arguments
                  '_assume_type_keys',   # assumptions typeinfo keys
                 ]
 \end{verbatim}
-The above creates an immutable class by preventing the creation of the normal python dictionary, which would be extendable by users and larger than this list. (Expression immutability, as opposed to immutable in the sense of a tuple, is kept by convention: always returning an "expression immutable" copy on mutate operations.) \\\\
+The above creates an immutable class by preventing the creation of the normal python dictionary, which would be extendable by users and take up unnecessary space. (All symbols in SymPy are also expression immutable, but this is kept by convention: always returning an "expression immutable" copy on mutate operations.)
+\subsection*{\small \_\_new\_\_()}
 Something else seen in this class Basic, and the majority of core classes, is the definition of \_\_new\_\_() which returns an instance of the class. Unlike \_\_init\_\_(), \_\_new\_\_() allows customization of the instance creation itself, not just initialization. One example of this is used to cache Symbol objects. The following is a return statement from Symbol's \_\_new\_\_().
 \begin{verbatim}
 return Symbol.__xnew_cached_(cls, name, commutative, **assumptions)
 \end{verbatim}
-This call, essentially, returns a cached Symbol if it exists or creates a new Symbol should it not already exist (because all objects subclassing Basic should be immutable, this operates as intended). Caches aren't unique to Python; however, the cache defines a decorator that allows any function call to be cached.
+This call returns a cached Symbol if it exists or creates a new Symbol should it not already exist, avoiding the recurrence of allocation. Singletons in SymPy are another instance of the use of \_\_new\_\_() which is used to check if a singleton is in the singleton registry.
+\subsection*{\small Decorators}
+Caches and registries aren't unique to Python; however, the way this is implemented in SymPy using Python is pretty attractive. In the case of caching, SymPy uses decorators to wrap function calls, the results of which are cached. In the Symbol class, this is done in the old style (closure syntax), but other occurences of the @cacheit decorator use this new style. 
+\begin{verbatimtab}
+# the occurence in sympy.core.symbol
+__xnew_cached_ = staticmethod(cacheit(__new_stage2__))
+# in sympy.core.basic
+@cacheit
+def _subs_old_new(self, old, new):
+	...
+\end{verbatimtab}
+A common Python idiom is then used within @cacheit to ensure that this "wrapper" is transparent to the user of the function.
+\begin{verbatimtab}
+def __cacheit(func):
+	...
+	@wraps(func)
+    def wrapper(*args, **kw_args):
+    	...
+    return wrapper
+\end{verbatimtab}
+This allows the interpreter to maintain the special attributes of \_subs\_old\_new, and other decorated functions, when the function being called is actually its wrapper (special attributes here are those such as \_\_name\_\_ and \_\_doc\_\_, which are important for introspection).
+\subsection*{\small Metaclasses}
+The last example that we'll cover on Python in SymPy, although are many, many more engaging uses, is metaclasses. Much like \_\_new\_\_ in Python intercepts instance creation of an object, metaclasses intercept creation of class objects. Everything in Python is an object, even ints, and so are classes.\\\\
+ The class keyword internally creates an object for the specified, and this is what metaclasses interfere with: how this class object is created. To interfere in this way, one simply defines the \_\_metaclass\_\_ variable in the class one wants to intevene in, and Python does the rest, calling the metaclass before the class object is created with the information about the original class object. The Basic class in sympy.core uses such a meta class. It's defined as simply as the following.
+\begin{verbatim}
+__metaclass__ = BasicMeta
+\end{verbatim}
+Being the base class for all symbol objects, Basic has many duties. One of these duties is maintaining assumptions about symbols and consequences derived from such assumptions. Metaclasses are inherited when subclassing, so as far as we can tell (admittedly, BasicMeta uses a lot of magic), BasicMeta creates default assumptions and derives consequences of premises that a class derived from Basic might define. This is the common use of metaclasses, often occuring in Python API's: abstraction of low-level class maintaince or representation for class designers.\\\\
+As said, this is only a survey of a few Python tools used in SymPy's core package. But it should be clear how much of Python is being leveraged to do very cool things in its lower levels.
 \end{document}
