@@ -52,7 +52,7 @@ Figure 1: Output of plotting example
 
 Supported Outputs
 
-SymPy supports within its printing and formatting utilities a variety of output formats ranging from ASCII art to LaTeX and MathML. SymPy can also produce C and Fortran code as part of its printing and formatting capabilities. The C printer will try to use the standard C math libraries as much as possible. Of course, custom output formats can be implemented as well. Extending SymPy’s supported output formats will be discussed in the next section.
+SymPy supports within its printing and formatting utilities a variety of output formats ranging from ASCII art to LaTeX and MathML. SymPy can also produce C and Fortran code as part of its printing and formatting capabilities. The C printer will try to use the standard C math libraries as much as possible. Of course, custom output formats can be implemented as well.
 
 >>> from sympy import Integral, latex
 >>> from sympy.abc import x
