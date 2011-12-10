@@ -1,33 +1,51 @@
-\documentclass[11pt,a4paper,oneside]{report}
+\documentclass[11pt]{article}
 \usepackage{moreverb}
+\usepackage{listings}
+
+\setlength{\oddsidemargin}{0.0in}
+\setlength{\evensidemargin}{0.0in}
+\setlength{\topmargin}{-0.25in}
+\setlength{\headheight}{0in}
+\setlength{\headsep}{0in}
+\setlength{\textwidth}{6.5in}
+\setlength{\textheight}{9.25in}
+\setlength{\parindent}{0in}
+\setlength{\parskip}{2mm}
+
+\lstset{
+basicstyle=\ttfamily,
+numbers=left,
+xleftmargin=20pt
+}
+
 \begin{document}
 \title{SymPy, A Python Library for Symbolic Mathematics}
 \author{Jason Hsu, Keyan Kousha, Damian Rooney}
 \date{Fall 2011}
 \maketitle
-\section*{Introduction}
+\section{Introduction}
 Manipulating mathematical equations in symbolic form is rarely a built-in general programming language (GPL) feature. It's certainly not in today's popular programming languages. For mathematicians, this means learning a new domain specific language (DSL) to conduct such work, often barring its functionality from use in a more general context. Where integration between a DSL and a GPL is possible, it is often complicated, or ugly at best; in addition, studying or modifying the code base in these frequently proprietary languages isn't allowed; and features normally found in a GPL are an afterthought and require learning additional new syntax. Beyond the inconvenience, most popular languages in the symbolic math domain also have prohibitive costs (e.g. MatLab, Mathematica, etc.). It would be nice then to have symbolic math be a library to a GPL, written in a GPL, licenced like a GPL, with an implementation as transparent as a GPL's implementation. This is where SymPy, an open source Python library for symbolic math, enters.
-\section*{Features}
+\subsection{Features}
 SymPy is both written and interfaced with entirely in Python (although, according to their webpage, in the future they will supply a C-written core as an option). It's feature list reads as you would expect a computer algebra system's (CAS) feature list to read. It provides things as basic as algebraic simplification and expansion, complex numbers, differentiation, integration, algebraic and differential equation solvers, etc. It also contains modules for algebraic geometry, arbitrary precision floating point arithmetic, statistics, matrices, and quantum physics, among others. Printing, and plotting in both two and three dimensions, is supported as well. SymPy furnishes the user with all the standard fare of a paid CAS, but for free in a well-known, non-proprietary language for easy extensibility and modification.\\\\
  SymPy's features have even found their way into a more elaborate open source CAS, Sage, which is similarly interfaced with via Python (however, unlike SymPy, Sage has components written in several other languages). According to Sage's Wikipedia entry, SymPy's library is used in it's implementation of calculus tools.
- \section*{Why Python? Wow, Python!}
+ \subsection{Why Python? Wow, Python!}
  BS BS BS
  Exec in abc.py code generation, etc., etc
- \section*{The SymPy Core Package}
+ \subsection{The SymPy Core Package}
 Naturally, the base classes for SymPy are fairly complex. But that affords an architecture that is straightforward yet powerful. Scratching a few surfaces is enough to get started using and extending SymPy.\\\\
 The base class of all objects in SymPy, resident to the core package, is the Basic class. The Basic class encapsulates all functionality "basic" to all symbols. This includes defining things like comparisons between generic symbol trees, pattern queries, etc.; providing a uniform interface for accessing symbol object hashes, symbol atoms in expressions, and type info (like communitivity and positivity); and, insuring all symbols are immutable (more on that later). The Basic class is important because it's the parent to the Symbol class, which is the primary construct users interact with.
-\subsection*{\small Symbol Objects}
+\subsubsection{\small Symbol Objects}
 To create a symbol in SymPy, one simply pulls up Python in interactive mode, imports the Symbol class from sympy and begins creating symbols as in the following:
-\begin{verbatim}
+\begin{lstlisting}
 >>> from sympy import Symbol
 >>> a = Symbol('a')
 >>> b = Symbol('b')
 >>> c = a*b
 >>> c
 a*b
-\end{verbatim}
+\end{lstlisting}
 What's shown above is pretty straightforward, but it demonstrates the simplicity of creating symbols then nesting them in an expression object of type Mul. Mul itself behaves much like a Symbol because it is similarly a descendant of Basic.
-\begin{verbatim}
+\begin{lstlisting}
  |  Method resolution order:
  |      Mul
  |      sympy.core.operations.AssocOp
@@ -36,9 +54,9 @@ What's shown above is pretty straightforward, but it demonstrates the simplicity
  |      sympy.core.assumptions.AssumeMeths
  |      sympy.core.evalf.EvalfMixin
  |      __builtin__.object
-\end{verbatim}
+\end{lstlisting}
 This occurs because Symbol descends from a class that overloads the asterisk, and all other arithmetic operators, to deal with Symbols (synonymously in the architecture, Atoms and Exprs). Symbolic compositions like this extend any class derived from Basic, so to enable users to define their own functions. A few more complicated uses/compositions are shown below, but many more exist and behave just as intuitively.
-\begin{verbatim}
+\begin{lstlisting}
 >>> from sympy import *
 >>> from sympy.abc import x, a, b, c #creates Symbols for chars (more on this later)
 >>> integrate(x**2 * exp(x) * cos(x), x)
@@ -55,20 +73,20 @@ b*c/2
 >>> x = Symbol('x') #define x to be a symbol again
 >>> limit(1/x, x, oo)
 0
-\end{verbatim}
+\end{lstlisting}
 The above should suffice for a top level understanding, but much else that exists in the core facilitates the movement, efficiency (there's a Symbol cache!), and representation of Symbols within SymPy.
-\section*{Python in sympy.core}
+\subsection{Python in sympy.core}
 Python is used in some interesting ways to acheive the core's functionality. We'll dicuss a small number of them briefly. One interesting way is keeping Basic and derived classes immutable and lightweight. This is done by interfering in the instance creation process.
-\begin{verbatim}
+\begin{lstlisting}
     __slots__ = ['_mhash',              # hash value
                  '_args',               # arguments
                  '_assume_type_keys',   # assumptions typeinfo keys
                 ]
-\end{verbatim}
+\end{lstlisting}
 The above creates an immutable class by preventing the creation of the normal python dictionary, which would be extendable by users and larger than this list. (Expression immutability, as opposed to immutable in the sense of a tuple, is kept by convention: always returning an "expression immutable" copy on mutate operations.) \\\\
 Something else seen in this class Basic, and the majority of core classes, is the definition of \_\_new\_\_() which returns an instance of the class. Unlike \_\_init\_\_(), \_\_new\_\_() allows customization of the instance creation itself, not just initialization. One example of this is used to cache Symbol objects. The following is a return statement from Symbol's \_\_new\_\_().
-\begin{verbatim}
+\begin{lstlisting}
 return Symbol.__xnew_cached_(cls, name, commutative, **assumptions)
-\end{verbatim}
+\end{lstlisting}
 This call, essentially, returns a cached Symbol if it exists or creates a new Symbol should it not already exist (because all objects subclassing Basic should be immutable, this operates as intended). Caches aren't unique to Python; however, the cache defines a decorator that allows any function call to be cached.
 \end{document}
